@@ -9,7 +9,7 @@ parser.add_argument('email', type = str, required = True, help = 'No email provi
 parser.add_argument('password', type = str, location = 'json')
 
 
-class UserList(Resource):
+class UserListResource(Resource):
     def __init__(self):
         super(UserList, self).__init__()
 
@@ -26,7 +26,7 @@ class UserList(Resource):
 
         return {}, 201
 
-class User(Resource):
+class UserResource(Resource):
     def __init__(self):
         super(User, self).__init__()
 

@@ -1,13 +1,13 @@
 from flask import Flask
 from flask_restful import Api
-from resources.userResource import UserList, User
+from resources.userResource import UserListResource, UserResource
 from rdb.rdb import connect_to_db, create_all
 
 app = Flask(__name__)
 api = Api(app)
 
-api.add_resource(UserList, '/user', endpoint='users')
-api.add_resource(User, '/user/<int:user_id>', endpoint='user')
+api.add_resource(UserListResource, '/user', endpoint='users')
+api.add_resource(UserResource, '/user/<int:user_id>', endpoint='user')
 
 if __name__ == '__main__':
     connect_to_db(app, 'postgresql://mad:MAD@db:5432/mad')
