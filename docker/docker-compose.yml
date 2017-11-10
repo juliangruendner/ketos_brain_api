@@ -25,9 +25,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - type: volume
-        source: ../dbdata
-        target: /var/lib/postgresql/data
+      - type: ../dbdata:/var/lib/postgresql/data
     networks:
       - backend
 
