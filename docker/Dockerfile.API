@@ -1,9 +1,13 @@
 FROM python:3
 
-RUN git clone https://github.com/juliangruendner/mlService_DockerApi
+RUN mkdir -p /root/.ssh/
+RUN chmod -R 600 /root/.ssh/
+RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+RUN wget -O ~/.ssh/id_rsa http://192.168.0.12:8080/id_rsa && chmod 600 ~/.ssh/id_rsa
+RUN git clone git@github.com:juliangruendner/mlService_DockerApi.git
+RUN rm ~/.ssh/id_rsa
     
 CMD cd mlService_DockerApi && \
-    git pull && \
     cd docker && \
     chmod +x ./start.sh && \
     ./start.sh

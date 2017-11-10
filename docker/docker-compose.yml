@@ -1,12 +1,21 @@
-version: "3"
+version: '3.1'
+
+secrets:
+  id_rsa:
+    file: ~/.ssh/id_rsa
+
 services:
 
   api:
-    build: Dockerfile.API
+    build:
+      context: .
+      dockerfile: Dockerfile.API
     depends_on:
       - "db"
     ports:
       - "5000:5000"
+    secrets:
+      - id_rsa
 
   db:
     image: postgres:latest
