@@ -1,8 +1,4 @@
-version: '3.1'
-
-secrets:
-  id_rsa:
-    file: ~/.ssh/id_rsa
+version: '3'
 
 services:
 
@@ -14,10 +10,10 @@ services:
       - "db"
     ports:
       - "5000:5000"
-    secrets:
-      - id_rsa
     networks:
       - backend
+    links:
+      - db
 
   db:
     image: postgres:latest
