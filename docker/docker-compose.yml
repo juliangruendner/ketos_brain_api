@@ -2,7 +2,7 @@ version: "3"
 services:
 
   api:
-    dockerfile: Dockerfile.API
+    build: Dockerfile.API
     depends_on:
       - "db"
     ports:
