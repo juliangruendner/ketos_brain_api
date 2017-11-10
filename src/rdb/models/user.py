@@ -12,7 +12,7 @@ class User(db.Model):
     first_name = db.Column(db.Text, nullable=False)
     last_name = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
-    password = db.Colum(db.Text)
+    password = db.Column(db.Text)
 
     def __init__(self, first_name, last_name, email, password):
         self.first_name = first_name
