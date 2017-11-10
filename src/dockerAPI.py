@@ -10,7 +10,7 @@ api.add_resource(UserList, '/user', endpoint='users')
 api.add_resource(User, '/user/<int:user_id>', endpoint='user')
 
 if __name__ == '__main__':
-    connect_to_db(app, 'postgresql://mad:MAD@0.0.0.0:5432/mad')
+    connect_to_db(app, 'postgresql://mad:MAD@127.0.0.1:5432/mad')
     create_all()
     # set debug false in production mode
     app.run(debug=True, host='0.0.0.0', port=5000)
