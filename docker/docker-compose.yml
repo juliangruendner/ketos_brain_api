@@ -16,6 +16,8 @@ services:
       - "5000:5000"
     secrets:
       - id_rsa
+    networks:
+      - backend
 
   db:
     image: postgres:latest
