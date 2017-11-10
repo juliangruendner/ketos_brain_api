@@ -204,4 +204,7 @@ venv.bak/
 !.vscode/extensions.json
 .history
 
+### db data
+/dbdata
+
 # End of https://www.gitignore.io/api/macos,python,intellij,visualstudiocode
