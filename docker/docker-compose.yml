@@ -1,0 +1,29 @@
+version: "3"
+services:
+
+  api:
+    dockerfile: Dockerfile.API
+    depends_on:
+      - "db"
+    ports:
+      - "5000:5000"
+
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=mad
+      - POSTGRES_PASSWORD=MAD
+      - POSTGRES_DB=mad
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  db-data:
