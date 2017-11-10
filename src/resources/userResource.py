@@ -18,17 +18,13 @@ class UserList(Resource):
 
     def post(self):
         args = parser.parse_args()
-        u = {
-            'first_name': args['first_name'],
-            'last_name': args['last_name'],
-            'email': args['email'],
-            'pssword': args['password']
-        }
+        print(args)
+        #u = User()
 
-        db.session.add(u)
-        db.session.commit()
+        #db.session.add(u)
+        #db.session.commit()
 
-        return u, 201
+        return {}, 201
 
 class User(Resource):
     def __init__(self):

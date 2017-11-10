@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from rdb.rdb import db
 
 
 class User(db.Model):
@@ -12,7 +11,7 @@ class User(db.Model):
     first_name = db.Column(db.Text, nullable=False)
     last_name = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
-    password = db.Column(db.Text)
+    password = db.Column(db.Text, nullable=False)
 
     def __init__(self, first_name, last_name, email, password):
         self.first_name = first_name
@@ -24,3 +23,8 @@ class User(db.Model):
         """Display when printing a ToDo object"""
 
         return "<user: {} {}, e-mail: {}>".format(self.first_name, self.last_name, self.email)
+
+    def as_dict(self):
+        """Convert object to dictionary"""
+
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
