@@ -1,4 +1,4 @@
-from flask_restful import Resource, Api, reqparse, abort
+from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
 from rdb.models.user import User
 from rdb.rdb import db
 
@@ -8,14 +8,24 @@ parser.add_argument('last_name', type = str, required = True, help = 'No last na
 parser.add_argument('email', type = str, required = True, help = 'No email provided', location = 'json')
 parser.add_argument('password', type = str, location = 'json')
 
+user_fields = {
+    'id': fields.Integer,
+    'first_name': fields.String,
+    'last_name': fields.String,
+    'email': fields.String,
+    'password': fields.String
+}
+
 
 class UserListResource(Resource):
     def __init__(self):
         super(UserListResource, self).__init__()
 
+    @marshal_with(user_fields)
     def get(self):
         return User.query.all()
 
+    @marshal_with(user_fields)
     def post(self):
         args = parser.parse_args()
 
@@ -33,6 +43,7 @@ class UserResource(Resource):
     def abort_if_example_doesnt_exist(self, user_id):
         abort(404, message="user {} doesn't exist".format(user_id))
 
+    @marshal_with(user_fields)
     def get(self, user_id):
         u = User.query.get(user_id)
 
@@ -41,6 +52,7 @@ class UserResource(Resource):
 
         return u
 
+    @marshal_with(user_fields)
     def delete(self, user_id):
         u = User.query.get(user_id)
 
@@ -52,6 +64,7 @@ class UserResource(Resource):
         
         return {'result': True}, 204
 
+    @marshal_with(user_fields)
     def put(self, user_id):
         u = User.query.get(user_id)
 
