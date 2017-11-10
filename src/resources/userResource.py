@@ -11,7 +11,7 @@ parser.add_argument('password', type = str, location = 'json')
 
 class UserListResource(Resource):
     def __init__(self):
-        super(UserList, self).__init__()
+        super(UserListResource, self).__init__()
 
     def get(self):
         return User.query.all()
@@ -28,7 +28,7 @@ class UserListResource(Resource):
 
 class UserResource(Resource):
     def __init__(self):
-        super(User, self).__init__()
+        super(UserResource, self).__init__()
 
     def abort_if_example_doesnt_exist(self, user_id):
         abort(404, message="user {} doesn't exist".format(user_id))
