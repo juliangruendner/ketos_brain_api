@@ -1,4 +1,7 @@
 flask
+Flask-HTTPAuth
 Flask-RESTful
 flask_sqlalchemy
+passlib
 psycopg2
+docker

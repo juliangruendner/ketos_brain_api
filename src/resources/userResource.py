@@ -1,6 +1,9 @@
 from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
 from rdb.models.user import User
 from rdb.rdb import db
+from flask_httpauth import HTTPBasicAuth
+
+auth = HTTPBasicAuth()
 
 parser = reqparse.RequestParser()
 parser.add_argument('first_name', type = str, required = True, help = 'No first name provided', location = 'json')
@@ -16,6 +19,14 @@ user_fields = {
     'password': fields.String
 }
 
+@auth.verify_password
+def verify_password(username, password):
+    # try to authenticate with username/password
+    user = User.query.filter_by(email=username).first()
+    if not user or not user.verify_password(password):
+            return False
+    g.user = user
+    return True
 
 class UserListResource(Resource):
     def __init__(self):
