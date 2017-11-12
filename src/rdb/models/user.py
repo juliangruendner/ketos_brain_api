@@ -19,7 +19,7 @@ class User(db.Model):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.password_hash = self.hash_password(password)
+        self.hash_password(password)
 
     def __repr__(self):
         """Display when printing a ToDo object"""
