@@ -25,7 +25,7 @@ def verify_password(username, password):
     # try to authenticate with username/password
     user = User.query.filter_by(email=username).first()
     if not user or not user.verify_password(password):
-            return False
+        return False
     g.user = user
     return True
 
