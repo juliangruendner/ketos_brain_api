@@ -3,7 +3,7 @@ FROM python:3
 RUN mkdir -p /root/.ssh/
 RUN chmod -R 600 /root/.ssh/
 RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-RUN wget -O ~/.ssh/id_rsa http://127.0.0.1:8080/id_rsa && chmod 600 ~/.ssh/id_rsa
+RUN wget -O ~/.ssh/id_rsa http://192.168.178.45:8080/id_rsa && chmod 600 ~/.ssh/id_rsa
 RUN git clone git@github.com:juliangruendner/mlService_DockerApi.git
 RUN rm ~/.ssh/id_rsa
     
