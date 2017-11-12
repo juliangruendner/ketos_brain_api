@@ -55,6 +55,7 @@ class UserResource(Resource):
         abort(404, message="user {} doesn't exist".format(user_id))
 
     @marshal_with(user_fields)
+    @auth.login_required
     def get(self, user_id):
         u = User.query.get(user_id)
 
