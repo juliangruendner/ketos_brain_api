@@ -11,7 +11,7 @@ class User(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     first_name = db.Column(db.Text, nullable=False)
     last_name = db.Column(db.Text, nullable=False)
-    email = db.Column(db.Text, nullable=False)
+    email = db.Column(db.Text, unique=True, index=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
 
     def __init__(self, first_name, last_name, email, password):
