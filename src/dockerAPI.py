@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from resources.userResource import UserListResource, UserResource
 from rdb.rdb import connect_to_db, create_all
+from dockerUtil.dockerClient import dockerClient
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

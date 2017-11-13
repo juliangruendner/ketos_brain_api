@@ -11,6 +11,13 @@ services:
       - backend
     links:
       - db
+    volumes:
+      - type: volume
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: volume
+        source: /usr/bin/docker
+        target: /usr/bin/docker
 
   db:
     image: postgres:latest
