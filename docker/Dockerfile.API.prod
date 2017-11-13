@@ -9,6 +9,8 @@ RUN mv /root/.ssh/maddevopsrsa /root/.ssh/id_rsa
 RUN chmod 600 ~/.ssh/id_rsa
 RUN git clone git@github.com:juliangruendner/mlService_DockerApi.git
     
-CMD cd mlService_DockerApi/docker && \
-    chmod +x ./startProd.sh && \
-    ./startProd.sh
+CMD cd mlService_DockerApi && \
+    git pull && \
+    cd src/ && \
+    pip3 install -r requirements.txt && \
+    python3 dockerAPI.py
