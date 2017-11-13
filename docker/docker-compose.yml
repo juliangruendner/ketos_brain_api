@@ -4,7 +4,7 @@ services:
 
   api:
     depends_on:
-      - "db"
+      - db
     ports:
       - "5000:5000"
     networks:

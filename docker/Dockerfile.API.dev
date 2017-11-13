@@ -1,5 +1,9 @@
 FROM python:3
 
+ADD wait-for-it.sh /root
+
 CMD cd /root/src && \
     pip3 install -r requirements.txt && \
+    chmod +x /root/wait-for-it.sh && \
+    ./root/wait-for-it.sh db:5432 && \
     python3 dockerAPI.py
