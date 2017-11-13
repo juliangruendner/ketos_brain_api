@@ -3,6 +3,7 @@ FROM python:3
 ADD ../ .
     
 CMD cd mlService_DockerApi && \
+    git pull && \
     cd docker && \
     chmod +x ./start.sh && \
     ./start.sh
