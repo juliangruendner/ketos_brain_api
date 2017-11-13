@@ -1,0 +1,8 @@
+FROM python:3
+
+ADD ../ .
+    
+CMD cd mlService_DockerApi && \
+    cd docker && \
+    chmod +x ./start.sh && \
+    ./start.sh
