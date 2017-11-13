@@ -3,9 +3,6 @@ version: '3.2'
 services:
 
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile.API.prod
     depends_on:
       - "db"
     ports:

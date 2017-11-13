@@ -1,0 +1,12 @@
+version: '3.2'
+
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.API.dev
+    volumes:
+      - type: volume
+        source: ../src
+        target: /root/src

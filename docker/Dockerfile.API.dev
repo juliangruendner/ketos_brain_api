@@ -1,9 +1,5 @@
 FROM python:3
 
-ADD ../ .
-    
-CMD cd mlService_DockerApi && \
-    git pull && \
-    cd docker && \
-    chmod +x ./start.sh && \
-    ./start.sh
+CMD cd /root/src && \
+    pip3 install -r requirements.txt && \
+    python3 dockerAPI.py
