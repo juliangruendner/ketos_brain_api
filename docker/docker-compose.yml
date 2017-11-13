@@ -5,7 +5,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.API
+      dockerfile: Dockerfile.API.prod
     depends_on:
       - "db"
     ports:
