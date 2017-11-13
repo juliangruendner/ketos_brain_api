@@ -12,7 +12,5 @@ RUN git clone git@github.com:juliangruendner/mlService_DockerApi.git
 CMD cd mlService_DockerApi && \
     git pull && \
     cd src/ && \
-    pip3 install -r requirements.txt && \
-    chmod +x wait-for-it.sh && \
-    ./wait-for-it.sh db:5432 && \
-    python3 dockerAPI.py
+    chmod +x startup.sh && \
+    ./startup.sh
