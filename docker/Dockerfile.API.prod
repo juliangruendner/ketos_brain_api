@@ -1,7 +1,6 @@
 FROM python:3
 
 ADD maddevopsrsa /root/.ssh/
-ADD wait-for-it.sh /root
 
 RUN mkdir -p /root/.ssh/
 RUN chmod -R 600 /root/.ssh/
@@ -14,6 +13,6 @@ CMD cd mlService_DockerApi && \
     git pull && \
     cd src/ && \
     pip3 install -r requirements.txt && \
-    chmod +x /root/wait-for-it.sh && \
-    ./root/wait-for-it.sh db:5432 && \
+    chmod +x wait-for-it.sh && \
+    ./wait-for-it.sh db:5432 && \
     python3 dockerAPI.py
