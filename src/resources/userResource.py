@@ -1,5 +1,5 @@
-from flask import Flask, abort, request, jsonify, g, url_for
-from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
+from flask import g
+from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.models.user import User
 from rdb.rdb import db
 from flask_httpauth import HTTPBasicAuth
@@ -7,10 +7,26 @@ from flask_httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
 
 parser = reqparse.RequestParser()
-parser.add_argument('first_name', type = str, required = True, help = 'No first name provided', location = 'json')
-parser.add_argument('last_name', type = str, required = True, help = 'No last name provided', location = 'json')
-parser.add_argument('email', type = str, required = True, help = 'No email provided', location = 'json')
-parser.add_argument('password', type = str, location = 'json')
+parser.add_argument('first_name',
+                    type=str,
+                    required=True,
+                    help='No first name provided',
+                    location='json')
+parser.add_argument('last_name',
+                    type=str,
+                    required=True,
+                    help='No last name provided',
+                    location='json')
+parser.add_argument('email',
+                    type=str,
+                    required=True,
+                    help='No email provided',
+                    location='json')
+parser.add_argument('password',
+                    type=str,
+                    required=True,
+                    help='No password provided',
+                    location='json')
 
 user_fields = {
     'id': fields.Integer,
@@ -20,6 +36,7 @@ user_fields = {
     'password': fields.String
 }
 
+
 @auth.verify_password
 def verify_password(username, password):
     # try to authenticate with username/password
@@ -28,6 +45,7 @@ def verify_password(username, password):
         return False
     g.user = user
     return True
+
 
 class UserListResource(Resource):
     def __init__(self):
@@ -41,12 +59,14 @@ class UserListResource(Resource):
     def post(self):
         args = parser.parse_args()
 
-        u = User(first_name=args['first_name'], last_name=args['last_name'], email=args['email'], password=args['password'])
+        u = User(first_name=args['first_name'], last_name=args['last_name'],
+                 email=args['email'], password=args['password'])
 
         db.session.add(u)
         db.session.commit()
 
         return u, 201
+
 
 class UserResource(Resource):
     def __init__(self):
@@ -73,7 +93,6 @@ class UserResource(Resource):
 
         db.session.delete(u)
         db.session.commit()
-        
         return {'result': True}, 204
 
     @marshal_with(user_fields)
@@ -90,5 +109,5 @@ class UserResource(Resource):
         u.password = args['password']
 
         db.session.commit()
-        
+
         return u, 201

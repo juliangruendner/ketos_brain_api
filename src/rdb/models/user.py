@@ -1,4 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
 from passlib.apps import custom_app_context as pwd_context
 from rdb.rdb import db
 
@@ -24,7 +23,8 @@ class User(db.Model):
     def __repr__(self):
         """Display when printing a ToDo object"""
 
-        return "<user: {} {}, e-mail: {}>".format(self.first_name, self.last_name, self.email)
+        return "<user: {} {}, e-mail: {}>".format(
+                self.first_name, self.last_name, self.email)
 
     def as_dict(self):
         """Convert object to dictionary"""
