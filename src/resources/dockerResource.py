@@ -7,6 +7,6 @@ class DockerResource(Resource):
         super(DockerResource, self).__init__()
 
     def post(self):
-        ret = dockerClient.containers.run("ubuntu:latest", detach=True)
+        ret = dockerClient.containers.run("httpd:2.4", detach=True)
 
         return ret.id, 201

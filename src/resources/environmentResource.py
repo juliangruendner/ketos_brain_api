@@ -1,45 +1,12 @@
 from flask import g
 from flask_restful import Resource, reqparse, abort, fields, marshal_with
-from rdb.models.user import User
 from rdb.rdb import db
-from flask_httpauth import HTTPBasicAuth
-
-auth = HTTPBasicAuth()
+from resources.userResource import auth
 
 envSpecParser = reqparse.RequestParser()
-envSpecParser.add_argument('codetype',
-                    type=str,
-                    required=True,
-                    help='No codetype provided',
-                    location='json')
-envSpecParser.add_argument('version',
-                    type=str,
-                    required=True,
-                    help='No version provided',
-                    location='json')
-envSpecParser.add_argument('libraryPackage',
-                    type=str,
-                    required=False,
-                    location='json')
-
-
-user_fields = {
-    'id': fields.Integer,
-    'first_name': fields.String,
-    'last_name': fields.String,
-    'email': fields.String,
-    'password': fields.String
-}
-
-
-@auth.verify_password
-def verify_password(username, password):
-    # try to authenticate with username/password
-    user = User.query.filter_by(email=username).first()
-    if not user or not user.verify_password(password):
-        return False
-    g.user = user
-    return True
+envSpecParser.add_argument('codetype', type=str, required=True, help='No codetype provided', location='json')
+envSpecParser.add_argument('version', type=str, required=True, help='No version provided', location='json')
+envSpecParser.add_argument('libraryPackage', type=str, required=False, location='json')
 
 
 class EnvironmentListResource(Resource):
