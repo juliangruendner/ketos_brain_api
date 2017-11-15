@@ -51,6 +51,7 @@ class UserListResource(Resource):
     def __init__(self):
         super(UserListResource, self).__init__()
 
+    @auth.login_required
     @marshal_with(user_fields)
     def get(self):
         return User.query.all()
@@ -84,6 +85,7 @@ class UserResource(Resource):
 
         return u
 
+    @auth.login_required
     @marshal_with(user_fields)
     def delete(self, user_id):
         u = User.query.get(user_id)
@@ -95,6 +97,7 @@ class UserResource(Resource):
         db.session.commit()
         return {'result': True}, 204
 
+    @auth.login_required
     @marshal_with(user_fields)
     def put(self, user_id):
         u = User.query.get(user_id)
