@@ -8,23 +8,24 @@ class User(db.Model):
     __tablename__ = "User"
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    first_name = db.Column(db.Text, nullable=False)
-    last_name = db.Column(db.Text, nullable=False)
+    first_name = db.Column(db.Text, nullable=True)
+    last_name = db.Column(db.Text, nullable=True)
+    username = db.Column(db.Text, unique=True, index=True, nullable=False)
     email = db.Column(db.Text, unique=True, index=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
 
-    def __init__(self, first_name, last_name, email, password):
+    def __init__(self, first_name, last_name, username, email, password):
         super(User, self).__init__()
         self.first_name = first_name
         self.last_name = last_name
+        self.username = username
         self.email = email
         self.hash_password(password)
 
     def __repr__(self):
-        """Display when printing a ToDo object"""
+        """Display when printing a user object"""
 
-        return "<user: {} {}, e-mail: {}>".format(
-                self.first_name, self.last_name, self.email)
+        return "<Name: {} {}, username: {}, e-mail: {}>".format(self.first_name, self.last_name, self.username, self.email)
 
     def as_dict(self):
         """Convert object to dictionary"""

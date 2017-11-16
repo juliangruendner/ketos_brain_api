@@ -47,5 +47,4 @@ class EnvironmentResource(Resource):
 
         '''
 
-        return {'id':'1', 'user' : g.user.email}
-
+        return {'id': '1', 'user': g.user.email}
