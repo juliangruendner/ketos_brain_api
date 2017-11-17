@@ -52,7 +52,12 @@ class UserListResource(Resource):
     def post(self):
         args = parser.parse_args()
 
-        u = User(first_name=args['first_name'], last_name=args['last_name'], username=args['username'], email=args['email'], password=args['password'])
+        u = User()
+        u.username = args['username']
+        u.email = args['email']
+        u.hash_password(args['password'])
+        u.first_name = args['first_name']
+        u.last_name = args['last_name']
 
         db.session.add(u)
         db.session.commit()
@@ -102,7 +107,7 @@ class UserResource(Resource):
         u.last_name = args['last_name']
         u.username = args['username']
         u.email = args['email']
-        u.password = args['password']
+        u.hash_password(args['password'])
 
         db.session.commit()
 

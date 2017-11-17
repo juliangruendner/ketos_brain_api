@@ -5,7 +5,7 @@ from rdb.rdb import db
 class User(db.Model):
     """User class"""
 
-    __tablename__ = "User"
+    __tablename__ = "user"
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     first_name = db.Column(db.Text, nullable=True)
@@ -13,14 +13,11 @@ class User(db.Model):
     username = db.Column(db.Text, unique=True, index=True, nullable=False)
     email = db.Column(db.Text, unique=True, index=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
+    created_environments = db.relationship('Environment', lazy=True, backref='creator')
+    accessible_evironments = db.relationship('Environment', lazy=True, secondary='user_environment_access')
 
-    def __init__(self, first_name, last_name, username, email, password):
+    def __init__(self):
         super(User, self).__init__()
-        self.first_name = first_name
-        self.last_name = last_name
-        self.username = username
-        self.email = email
-        self.hash_password(password)
 
     def __repr__(self):
         """Display when printing a user object"""
