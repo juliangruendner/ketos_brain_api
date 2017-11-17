@@ -7,6 +7,7 @@ class Image(db.Model):
     __tablename__ = "image"
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Colum(db.Text, unique=True, nullable=False)
     desription = db.Column(db.Text, nullable=True)
     environments_based_on_this = db.relationship('Environment', lazy=True, backref='base_image')
 

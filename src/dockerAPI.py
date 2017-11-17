@@ -11,7 +11,7 @@ api = Api(app)
 
 
 api.add_resource(UserListResource, '/users', endpoint='users')
-api.add_resource(UserResource, '/users/<int:user_id>', endpoint='user')
+api.add_resource(UserResource, '/users/<string:username>', endpoint='user')
 api.add_resource(DockerResource, '/dockers', endpoint='docker')
 api.add_resource(EnvironmentListResource, '/environments', endpoint='environments')
 api.add_resource(EnvironmentResource, '/environments/<int:env_id>', endpoint='environment')

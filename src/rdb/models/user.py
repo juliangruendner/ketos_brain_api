@@ -34,3 +34,14 @@ class User(db.Model):
 
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
+
+
+def get_user_by_username(username):
+    username = str(username)
+    u = None
+    if "@" in username:
+        u = User.query.filter_by(email=username.lower()).first()
+    else:
+        u = User.query.filter_by(username=username.lower()).first()
+
+    return u

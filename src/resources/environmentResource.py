@@ -1,50 +1,82 @@
 from flask import g
 from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.rdb import db
+from rdb.models.environment import Environment
+from rdb.models.user import User
+from rdb.models.image import Image
 from resources.userResource import auth
 
-envSpecParser = reqparse.RequestParser()
-envSpecParser.add_argument('codetype', type=str, required=True, help='No codetype provided', location='json')
-envSpecParser.add_argument('version', type=str, required=True, help='No version provided', location='json')
-envSpecParser.add_argument('libraryPackage', type=str, required=False, location='json')
+parser = reqparse.RequestParser()
+parser.add_argument('name', type=str, required=True, help='No environment name provided', location='json')
+parser.add_argument('description', type=str, required=False, location='json')
+parser.add_argument('image_id', type=int, required=True, help='No image id provided', location='json')
+
+environment_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'jupyter_port': fields.String,
+    'jupyter_token': fields.String,
+    'jupyter_url': fields.String,
+    'description': fields.String,
+    'creator_id': fields.Integer,
+    'image_id': fields.Integer
+}
 
 
 class EnvironmentListResource(Resource):
     def __init__(self):
         super(EnvironmentListResource, self).__init__()
 
+    def abort_if_image_doesnt_exist(self, image_id):
+        abort(404, message="image {} doesn't exist".format(image_id))
+
+    @auth.login_required
+    @marshal_with(environment_fields)
     def get(self):
-        return {'turns out u can just write json here': 4098, 'thisIsBloodyAwesome': 'muhahah'}
+        envs = Environment.query.all()
 
+        for e in envs:
+            e.fill_jupyter_url()
+
+        return envs, 200
+
+    @auth.login_required
+    @marshal_with(environment_fields)
     def post(self):
-        args = envSpecParser.parse_args()
+        args = parser.parse_args()
 
-        '''
-        environment = User(first_name=args['first_name'], last_name=args['last_name'],
-                 email=args['email'], password=args['password'])
+        e = Environment()
+        e.name = args['name'].lower()
+        e.description = args['description']
 
-        db.session.add(environment)
+        image = Image.query.get(args['image_id'])
+        if not image:
+            self.abort_if_image_doesnt_exist(args['image_id'])
+
+        e.image_id = image.id
+        e.creator_id = User.query.get(g.user.id).id
+
+        db.session.add(e)
         db.session.commit()
-        '''
 
-        return args, 401
+        return e, 201
 
 
 class EnvironmentResource(Resource):
     def __init__(self):
         super(EnvironmentResource, self).__init__()
 
-    def abort_if_example_doesnt_exist(self, env_id):
-        abort(404, message="user {} doesn't exist".format(env_id))
+    def abort_if_environment_doesnt_exist(self, env_id):
+        abort(404, message="environment {} doesn't exist".format(env_id))
 
     @auth.login_required
+    @marshal_with(environment_fields)
     def get(self, env_id):
-        '''
-        u = User.query.get(user_id)
+        e = Environment.query.get(env_id)
 
-        if not u:
-            self.abort_if_example_doesnt_exist(user_id)
+        if not e:
+            self.abort_if_environment_doesnt_exist(env_id)
 
-        '''
+        e.fill_jupyter_url()
 
-        return {'id': '1', 'user': g.user.email}
+        return e, 200

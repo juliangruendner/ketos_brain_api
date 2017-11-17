@@ -19,6 +19,10 @@ services:
       - type: volume
         source: /usr/bin/docker
         target: /usr/bin/docker
+    environment:
+      - DOCKER_USERNAME=imimad
+      - DOCKER_PASSWORD=mad-imi2017!
+      - DOCKER_REGISTRY=https://gruendner.de:5043
 
   db:
     restart: unless-stopped

@@ -10,10 +10,11 @@ class Environment(db.Model):
     name = db.Column(db.Text, unique=True, nullable=False)
     jupyter_port = db.Column(db.Integer)
     jupyter_token = db.Column(db.Text)
+    jupyter_url = None
     description = db.Column(db.Text)
-    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     authorized_users = db.relationship('User', lazy=True, secondary='user_environment_access')
-    image_id = db.Column(db.Integer, db.ForeignKey('image.id'))
+    image_id = db.Column(db.Integer, db.ForeignKey('image.id'), nullable=False)
     ml_models = db.relationship('MLModel', lazy=True, backref='environment')
 
     def __init__(self):
@@ -28,3 +29,6 @@ class Environment(db.Model):
         """Convert object to dictionary"""
 
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def fill_jupyter_url(self):
+        self.jupyter_url = 'port:' + self.jupyter_port + ', token: ' + self.jupyter_token
