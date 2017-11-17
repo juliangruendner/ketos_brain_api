@@ -7,12 +7,14 @@ class Environment(db.Model):
     __tablename__ = "environment"
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, unique=True, nullable=False)
     jupyter_port = db.Column(db.Integer)
     jupyter_token = db.Column(db.Text)
     description = db.Column(db.Text)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     authorized_users = db.relationship('User', lazy=True, secondary='user_environment_access')
+    image_id = db.Column(db.Integer, db.ForeignKey('image.id'))
+    ml_models = db.relationship('MLModel', lazy=True, backref='environment')
 
     def __init__(self):
         super(Environment, self).__init__()
@@ -20,7 +22,7 @@ class Environment(db.Model):
     def __repr__(self):
         """Display when printing a environment object"""
 
-        return "<Name: {}, description: {}>".format(self.name, self.description)
+        return "<ID: {}, Name: {}, description: {}>".format(self.id, self.name, self.description)
 
     def as_dict(self):
         """Convert object to dictionary"""

@@ -22,7 +22,7 @@ class User(db.Model):
     def __repr__(self):
         """Display when printing a user object"""
 
-        return "<Name: {} {}, username: {}, e-mail: {}>".format(self.first_name, self.last_name, self.username, self.email)
+        return "<ID: {}, Name: {} {}, username: {}, e-mail: {}>".format(self.id, self.first_name, self.last_name, self.username, self.email)
 
     def as_dict(self):
         """Convert object to dictionary"""
