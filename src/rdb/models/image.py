@@ -9,6 +9,7 @@ class Image(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.Text, unique=True, nullable=False)
     desription = db.Column(db.Text, nullable=True)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     environments_based_on_this = db.relationship('Environment', lazy=True, backref='base_image')
 
     def __init__(self):

@@ -68,23 +68,23 @@ class UserResource(Resource):
     def abort_if_user_doesnt_exist(self, user_id):
         abort(404, message="user {} doesn't exist".format(user_id))
 
-    @auth.login_required
-    @marshal_with(user_fields)
-    def get(self, username):
+    def get_user(self, username):
         u = get_user_by_username(username)
 
         if not u:
             self.abort_if_user_doesnt_exist(username)
 
-        return u, 200
+        return u
+
+    @auth.login_required
+    @marshal_with(user_fields)
+    def get(self, username):
+        return self.get_user(username), 200
 
     @auth.login_required
     @marshal_with(user_fields)
     def delete(self, username):
-        u = get_user_by_username(username)
-
-        if not u:
-            self.abort_if_user_doesnt_exist(username)
+        u = self.get_user(username)
 
         db.session.delete(u)
         db.session.commit()
@@ -93,13 +93,9 @@ class UserResource(Resource):
     @auth.login_required
     @marshal_with(user_fields)
     def put(self, username):
-        u = get_user_by_username(username)
-
-        if not u:
-            self.abort_if_user_doesnt_exist(username)
+        u = self.get_user(username)
 
         args = parser.parse_args()
-
         u.username = args['username'].lower()
         u.email = args['email'].lower()
         u.hash_password(args['password'])
@@ -107,5 +103,4 @@ class UserResource(Resource):
         u.last_name = args['last_name']
 
         db.session.commit()
-
         return u, 200

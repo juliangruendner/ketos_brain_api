@@ -69,9 +69,7 @@ class EnvironmentResource(Resource):
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
 
-    @auth.login_required
-    @marshal_with(environment_fields)
-    def get(self, env_id):
+    def get_environment(self, env_id):
         e = Environment.query.get(env_id)
 
         if not e:
@@ -79,4 +77,27 @@ class EnvironmentResource(Resource):
 
         e.fill_jupyter_url()
 
+        return e
+
+    @auth.login_required
+    @marshal_with(environment_fields)
+    def get(self, env_id):
+        return self.get_environment(env_id), 200
+
+    @auth.login_required
+    @marshal_with(environment_fields)
+    def put(self, env_id):
+        e = self.get_environment(env_id)
+
+        args = parser.parse_args()
+        e.description = args['description']
         return e, 200
+
+    @auth.login_required
+    @marshal_with(environment_fields)
+    def delete(self, env_id):
+        e = self.get_environment(env_id)
+
+        db.session.delete(e)
+        db.session.commit()
+        return {'result': True}, 204

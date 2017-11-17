@@ -13,7 +13,9 @@ class User(db.Model):
     username = db.Column(db.Text, unique=True, index=True, nullable=False)
     email = db.Column(db.Text, unique=True, index=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
+    created_images = db.relationship('Image', lazy=True, backref='creator')
     created_environments = db.relationship('Environment', lazy=True, backref='creator')
+    created_ml_models = db.relationship('MLModel', lazy=True, backref='creator')
     accessible_evironments = db.relationship('Environment', lazy=True, secondary='user_environment_access')
 
     def __init__(self):
