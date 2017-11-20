@@ -8,7 +8,7 @@ class Environment(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.Text, unique=True, nullable=False)
-    jupyter_port = db.Column(db.Integer)
+    jupyter_port = db.Column(db.Text)
     jupyter_token = db.Column(db.Text)
     jupyter_url = None
     description = db.Column(db.Text)
