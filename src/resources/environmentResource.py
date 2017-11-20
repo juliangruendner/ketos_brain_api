@@ -4,6 +4,7 @@ from rdb.rdb import db
 from rdb.models.environment import Environment
 from rdb.models.user import User
 from rdb.models.image import Image
+from dockerUtil.dockerClient import dockerClient
 from resources.userResource import auth
 
 parser = reqparse.RequestParser()

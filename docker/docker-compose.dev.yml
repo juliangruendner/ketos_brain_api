@@ -2,10 +2,10 @@ version: '3.2'
 
 services:
 
-  api:
+  ml_service:
     build:
       context: .
-      dockerfile: Dockerfile.API.dev
+      dockerfile: Dockerfile.mlService.dev
     volumes:
       - type: volume
         source: ../src

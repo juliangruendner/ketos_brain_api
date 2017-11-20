@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
 
-  api:
+  ml_service:
     restart: unless-stopped
     depends_on:
       - db
