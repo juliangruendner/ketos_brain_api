@@ -6,12 +6,13 @@ class MLModel(db.Model):
 
     __tablename__ = "ml_model"
 
-    environment_id = db.Column(db.Integer, db.ForeignKey('environment.id'))
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    environment_id = db.Column(db.Integer, db.ForeignKey('environment.id'), nullable=False)
     name = db.Column(db.Text, nullable=False)
     desription = db.Column(db.Text, nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    __table_args__ = (db.PrimaryKeyConstraint('environment_id', 'name', name='pk_environment_id_ml_model_name'),)
+    __table_args__ = (db.UniqueConstraint('environment_id', 'name', name='pk_environment_id_ml_model_name'),)
 
     def __init__(self):
         super(MLModel, self).__init__()

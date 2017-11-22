@@ -5,6 +5,7 @@ from rdb.models.user import User
 from rdb.models.mlModel import MLModel
 from rdb.models.environment import Environment
 from resources.userResource import auth
+import requests
 
 parser = reqparse.RequestParser()
 parser.add_argument('environment_id', type=int, required=True, help='No environment id provided', location='json')
@@ -28,7 +29,9 @@ class MLModelListResource(Resource):
 
     @auth.login_required
     @marshal_with(ml_model_fields)
-    def get(self):
+    def get(self, env_id):
+        # r = requests.get('http://nico_prod:5000/tests')
+        # return r.json()
         return MLModel.query.all(), 200
 
     @auth.login_required
@@ -59,26 +62,26 @@ class MLModelResource(Resource):
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
 
-    def abort_if_ml_model_doesnt_exist(self, env_id, name):
-        abort(404, message="model {} for environment {} doesn't exist".format(name, env_id))
+    def abort_if_ml_model_doesnt_exist(self, env_id, model_id):
+        abort(404, message="model {} for environment {} doesn't exist".format(model_id, env_id))
 
-    def get_ml_model(self, env_id, name):
-        m = MLModel.query.get(env_id, name)
+    def get_ml_model(self, env_id, model_id):
+        m = MLModel.query.get(env_id, model_id)
 
         if not m:
-            self.abort_if_ml_model_doesnt_exist(env_id, name)
+            self.abort_if_ml_model_doesnt_exist(env_id, model_id)
 
         return m
 
     @auth.login_required
     @marshal_with(ml_model_fields)
-    def get(self, env_id, name):
-        return self.get_ml_model(env_id, name), 200
+    def get(self, env_id, model_id):
+        return self.get_ml_model(env_id, model_id), 200
 
     @auth.login_required
     @marshal_with(ml_model_fields)
-    def put(self, env_id, name):
-        m = self.get_ml_model(env_id, name)
+    def put(self, env_id, model_id):
+        m = self.get_ml_model(env_id, model_id)
 
         args = parser.parse_args()
         m.description = args['description']
@@ -86,8 +89,8 @@ class MLModelResource(Resource):
 
     @auth.login_required
     @marshal_with(ml_model_fields)
-    def delete(self, env_id, name):
-        m = self.get_ml_model(env_id, name)
+    def delete(self, env_id, model_id):
+        m = self.get_ml_model(env_id, model_id)
 
         db.session.delete(m)
         db.session.commit()

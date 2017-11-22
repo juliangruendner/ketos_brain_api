@@ -10,6 +10,7 @@ services:
       - "5000:5000"
     networks:
       - backend
+      - environment
     links:
       - db
     volumes:
@@ -44,3 +45,4 @@ services:
 
 networks:
   backend:
+  environment:

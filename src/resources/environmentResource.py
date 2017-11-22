@@ -58,7 +58,7 @@ class EnvironmentListResource(Resource):
         e.creator_id = User.query.get(g.user.id).id
 
         image_name = docker_registry_domain + "/" + image.name
-        dockerClient.containers.run(image_name, detach=True, name=e.name)
+        dockerClient.containers.run(image_name, detach=True, name=e.name, network='docker_environment')
 
         db.session.add(e)
         db.session.commit()
