@@ -55,7 +55,9 @@ class EnvironmentListResource(Resource):
             self.abort_if_image_doesnt_exist(args['image_id'])
 
         e.image_id = image.id
-        e.creator_id = User.query.get(g.user.id).id
+        u = User.query.get(g.user.id)
+        e.creator_id = u.id
+        e.authorized_users.append(u)
 
         image_name = docker_registry_domain + "/" + image.name
         dockerClient.containers.run(image_name, detach=True, name=e.name, network='docker_environment')
