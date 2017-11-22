@@ -31,4 +31,12 @@ class Environment(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
     def fill_jupyter_url(self):
-        self.jupyter_url = 'port:' + self.jupyter_port + ', token: ' + self.jupyter_token
+        port = ''
+        if self.jupyter_port:
+            port = self.jupyter_port
+
+        token = ''
+        if self.jupyter_token:
+            token = self.jupyter_token
+
+        self.jupyter_url = 'port:' + port + ', token: ' + token

@@ -23,6 +23,7 @@ services:
       - DOCKER_USERNAME=imimad
       - DOCKER_PASSWORD=mad-imi2017!
       - DOCKER_REGISTRY=https://gruendner.de:5043
+      - DOCKER_REGISTRY_DOMAIN=gruendner.de:5043
 
   db:
     restart: unless-stopped

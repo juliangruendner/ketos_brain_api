@@ -7,11 +7,13 @@ from resources.userResource import auth
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, required=True, help='No image name provided', location='json')
+parser.add_argument('title', type=str, location='json')
 parser.add_argument('description', type=str, required=False, location='json')
 
 image_fields = {
     'id': fields.Integer,
     'name': fields.String,
+    'title': fields.String,
     'description': fields.String,
     'creator_id': fields.Integer
 }
@@ -34,6 +36,7 @@ class ImageListResource(Resource):
         i = Image()
         i.name = args['name'].lower()
         i.description = args['description']
+        i.title = args['title']
         i.creator_id = User.query.get(g.user.id).id
 
         db.session.add(i)
@@ -67,6 +70,7 @@ class ImageResource(Resource):
         i = self.get_image(image_id)
 
         args = parser.parse_args()
+        i.title = args['title']
         i.description = args['description']
         return i, 200
 

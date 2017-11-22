@@ -4,7 +4,7 @@ from rdb.rdb import db
 from rdb.models.environment import Environment
 from rdb.models.user import User
 from rdb.models.image import Image
-from dockerUtil.dockerClient import dockerClient
+from dockerUtil.dockerClient import dockerClient, docker_registry_domain
 from resources.userResource import auth
 
 parser = reqparse.RequestParser()
@@ -57,6 +57,9 @@ class EnvironmentListResource(Resource):
         e.image_id = image.id
         e.creator_id = User.query.get(g.user.id).id
 
+        image_name = docker_registry_domain + "/" + image.name
+        dockerClient.containers.run(image_name, detach=True, name=e.name)
+
         db.session.add(e)
         db.session.commit()
 
@@ -98,6 +101,9 @@ class EnvironmentResource(Resource):
     @marshal_with(environment_fields)
     def delete(self, env_id):
         e = self.get_environment(env_id)
+
+        container = dockerClient.containers.get(e.name)
+        container.remove(force=True)
 
         db.session.delete(e)
         db.session.commit()
