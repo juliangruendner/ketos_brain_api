@@ -8,12 +8,12 @@ class Environment(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.Text, unique=True, nullable=False)
-    jupyter_port = db.Column(db.Text)
-    jupyter_token = db.Column(db.Text)
+    jupyter_port = db.Column(db.Text, nullable=False)
+    jupyter_token = db.Column(db.Text, nullable=False)
     jupyter_url = None
     description = db.Column(db.Text)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    authorized_users = db.relationship('User', lazy=True, secondary='user_environment_access')
+    authorized_users = db.relationship('User', lazy='subquery', secondary='user_environment_access')
     image_id = db.Column(db.Integer, db.ForeignKey('image.id'), nullable=False)
     ml_models = db.relationship('MLModel', lazy=True, backref='environment')
 
@@ -30,13 +30,7 @@ class Environment(db.Model):
 
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-    def fill_jupyter_url(self):
-        port = ''
-        if self.jupyter_port:
-            port = self.jupyter_port
-
-        token = ''
-        if self.jupyter_token:
-            token = self.jupyter_token
-
-        self.jupyter_url = 'port:' + port + ', token: ' + token
+    def set_jupyter_url(self):
+        # TODO: read host address from os
+        host = 'localhost'
+        self.jupyter_url = host + ':' + self.jupyter_port + '/?token=' + self.jupyter_token

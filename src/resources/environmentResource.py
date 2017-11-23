@@ -6,6 +6,9 @@ from rdb.models.user import User
 from rdb.models.image import Image
 from dockerUtil.dockerClient import dockerClient, docker_registry_domain
 from resources.userResource import auth
+import subprocess
+import requests
+import uuid
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, required=True, help='No environment name provided', location='json')
@@ -24,6 +27,16 @@ environment_fields = {
 }
 
 
+def get_open_port():
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(("", 0))
+    s.listen(1)
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
+
 class EnvironmentListResource(Resource):
     def __init__(self):
         super(EnvironmentListResource, self).__init__()
@@ -37,7 +50,7 @@ class EnvironmentListResource(Resource):
         envs = Environment.query.all()
 
         for e in envs:
-            e.fill_jupyter_url()
+            e.set_jupyter_url()
 
         return envs, 200
 
@@ -60,10 +73,23 @@ class EnvironmentListResource(Resource):
         e.authorized_users.append(u)
 
         image_name = docker_registry_domain + "/" + image.name
-        dockerClient.containers.run(image_name, detach=True, name=e.name, network='docker_environment')
+        open_port = get_open_port()
+        e.jupyter_port = open_port
+        dockerClient.containers.run(image_name, detach=True, name=e.name, network='docker_environment', ports={"8000/tcp": open_port})
+        # wait for container api to be up and running
+        subprocess.call(["./wait-for-it.sh", str(e.name + ":5000")])
+
+        e.jupyter_token = str(uuid.uuid4().hex)
+        '''
+        # TODO: save jupyter token
+        resp = requests.post('http://' + e.name + ':5000/jupyter').json()
+        e.jupyter_token = resp['jupyter_token']
+        '''
 
         db.session.add(e)
         db.session.commit()
+
+        e.set_jupyter_url()
 
         return e, 201
 
@@ -81,7 +107,7 @@ class EnvironmentResource(Resource):
         if not e:
             self.abort_if_environment_doesnt_exist(env_id)
 
-        e.fill_jupyter_url()
+        e.set_jupyter_url()
 
         return e
 
@@ -106,6 +132,9 @@ class EnvironmentResource(Resource):
 
         container = dockerClient.containers.get(e.name)
         container.remove(force=True)
+
+        e.authorized_users = []
+        db.session.commit()
 
         db.session.delete(e)
         db.session.commit()
