@@ -4,7 +4,7 @@ from resources.userResource import UserListResource, UserResource
 from resources.imageResource import ImageListResource, ImageResource
 from resources.environmentResource import EnvironmentListResource, EnvironmentResource
 from resources.mlModelResource import MLModelListResource, MLModelResource
-from rdb.rdb import connect_to_db, create_all
+from rdb.rdb import connect_to_db, create_all, create_admin_user
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -23,5 +23,6 @@ api.add_resource(ImageResource, '/images/<int:image_id>', endpoint='image')
 if __name__ == '__main__':
     connect_to_db(app, 'postgresql://mad:MAD@db:5432/mad')
     create_all()
+    create_admin_user()
     # set debug false in production mode
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -16,7 +16,8 @@ class User(db.Model):
     created_images = db.relationship('Image', lazy=True, backref='creator')
     created_environments = db.relationship('Environment', lazy=True, backref='creator')
     created_ml_models = db.relationship('MLModel', lazy=True, backref='creator')
-    accessible_evironments = db.relationship('Environment', lazy=True, secondary='user_environment_access')
+    accessible_evironments = db.relationship('Environment', lazy='subquery', secondary='user_environment_access')
+    assigned_groups = db.relationship('UserGroup', lazy='subquery', secondary='user_group_assignment')
 
     def __init__(self):
         super(User, self).__init__()

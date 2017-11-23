@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.models.user import User, get_user_by_username
 from rdb.rdb import db
 from flask_httpauth import HTTPBasicAuth
+from resources.authorizedGroups import AuthorizedGroups
 
 auth = HTTPBasicAuth()
 
@@ -44,7 +45,9 @@ class UserListResource(Resource):
     def get(self):
         return User.query.all(), 200
 
+    @auth.login_required
     @marshal_with(user_fields)
+    @AuthorizedGroups(['admin'])
     def post(self):
         args = parser.parse_args()
 

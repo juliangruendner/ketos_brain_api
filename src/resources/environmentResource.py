@@ -7,7 +7,6 @@ from rdb.models.image import Image
 from dockerUtil.dockerClient import dockerClient, docker_registry_domain, wait_for_it
 from resources.userResource import auth
 import requests
-import uuid
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, required=True, help='No environment name provided', location='json')
@@ -77,13 +76,9 @@ class EnvironmentListResource(Resource):
         # wait for container api to be up and running
         wait_for_it(e.name, 5000)
 
-        e.jupyter_token = str(uuid.uuid4().hex)
-
-        # TODO: get jupyter token
+        # start jupyter notebook and get jupyter token
         resp = requests.post('http://' + e.name + ':5000/jupyter').json()
-        token = str(resp['jupyter_token'])
-        if token and len(token) > 0:
-            e.jupyter_token = token
+        e.jupyter_token = str(resp['jupyter_token'])
 
         db.session.add(e)
         db.session.commit()

@@ -4,6 +4,7 @@ from rdb.rdb import db
 from rdb.models.user import User
 from rdb.models.image import Image
 from resources.userResource import auth
+from resources.authorizedGroups import AuthorizedGroups
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, required=True, help='No image name provided', location='json')
@@ -30,6 +31,7 @@ class ImageListResource(Resource):
 
     @auth.login_required
     @marshal_with(image_fields)
+    @AuthorizedGroups(['admin'])
     def post(self):
         args = parser.parse_args()
 
@@ -76,6 +78,7 @@ class ImageResource(Resource):
 
     @auth.login_required
     @marshal_with(image_fields)
+    @AuthorizedGroups(['admin'])
     def delete(self, image_id):
         i = self.get_image(image_id)
 

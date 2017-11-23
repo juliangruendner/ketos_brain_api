@@ -6,5 +6,5 @@ class UserEnvironmentAccess(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     environment_id = db.Column(db.Integer, db.ForeignKey('environment.id'), primary_key=True)
-    user = db.relationship('User', backref=db.backref("user_link"))
-    environment = db.relationship('Environment', backref=db.backref("environment_link"))
+    user = db.relationship('User', backref=db.backref("user_environment_link"))
+    environment = db.relationship('Environment', backref=db.backref("environment_user_link"))
