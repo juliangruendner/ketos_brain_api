@@ -6,7 +6,6 @@ from rdb.models.user import User
 from rdb.models.image import Image
 from dockerUtil.dockerClient import dockerClient, docker_registry_domain, wait_for_it
 from resources.userResource import auth
-import subprocess
 import requests
 import uuid
 
@@ -73,18 +72,18 @@ class EnvironmentListResource(Resource):
         e.authorized_users.append(u)
 
         image_name = docker_registry_domain + "/" + image.name
-        open_port = get_open_port()
-        e.jupyter_port = open_port
-        dockerClient.containers.run(image_name, detach=True, name=e.name, network='docker_environment', ports={"8000/tcp": open_port})
+        e.jupyter_port = get_open_port()
+        dockerClient.containers.run(image_name, detach=True, name=e.name, network='docker_environment', ports={"8000/tcp": e.jupyter_port})
         # wait for container api to be up and running
         wait_for_it(e.name, 5000)
 
         e.jupyter_token = str(uuid.uuid4().hex)
-        '''
-        # TODO: save jupyter token
+
+        # TODO: get jupyter token
         resp = requests.post('http://' + e.name + ':5000/jupyter').json()
-        e.jupyter_token = resp['jupyter_token']
-        '''
+        token = str(resp['jupyter_token'])
+        if token and len(token) > 0:
+            e.jupyter_token = token
 
         db.session.add(e)
         db.session.commit()
