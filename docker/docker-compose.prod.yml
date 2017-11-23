@@ -1,8 +1,0 @@
-version: '3.2'
-
-services:
-
-  ml_service:
-    build:
-      context: .
-      dockerfile: Dockerfile.mlService.prod

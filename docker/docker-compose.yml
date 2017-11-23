@@ -3,6 +3,9 @@ version: '3.2'
 services:
 
   ml_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlService.dev
     restart: unless-stopped
     depends_on:
       - db
@@ -14,6 +17,9 @@ services:
     links:
       - db
     volumes:
+      - type: volume
+        source: ../src
+        target: /root/src
       - type: volume
         source: /var/run/docker.sock
         target: /var/run/docker.sock
