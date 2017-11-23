@@ -40,6 +40,9 @@ class User(db.Model):
 
 
 def get_user_by_username(username):
+    # is username the real username or the email
+    # username: not @ contained
+    # email: @ contained
     username = str(username)
     u = None
     if "@" in username:

@@ -24,9 +24,6 @@ user_fields = {
 
 @auth.verify_password
 def verify_password(username, password):
-    # is username the real username or the email
-    # username: not @ contained
-    # email: @ contained
     user = get_user_by_username(username)
 
     if not user or not user.verify_password(password):
@@ -83,7 +80,6 @@ class UserResource(Resource):
         return self.get_user(username), 200
 
     @auth.login_required
-    @marshal_with(user_fields)
     def delete(self, username):
         u = self.get_user(username)
 
