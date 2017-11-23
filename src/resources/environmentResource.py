@@ -72,7 +72,15 @@ class EnvironmentListResource(Resource):
 
         image_name = docker_registry_domain + "/" + image.name
         e.jupyter_port = get_open_port()
-        dockerClient.containers.run(image_name, detach=True, name=e.name, network='docker_environment', ports={"8000/tcp": e.jupyter_port})
+
+        # get the right network
+        networks = dockerClient.networks.list()
+        network_name = ""
+        for n in networks:
+            if "environment" in str(n.name):
+                network_name = str(n.name)
+
+        dockerClient.containers.run(image_name, detach=True, name=e.name, network=network_name, ports={"8000/tcp": e.jupyter_port})
         # wait for container api to be up and running
         wait_for_it(e.name, 5000)
 
