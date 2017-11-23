@@ -3,6 +3,7 @@ version: '3.2'
 services:
 
   ml_service:
+    container_name: ml_service
     build:
       context: .
       dockerfile: Dockerfile.mlService.prod
@@ -28,6 +29,7 @@ services:
       - config_mlService.env
 
   db:
+    container_name: db
     restart: unless-stopped
     image: postgres:latest
     restart: unless-stopped
@@ -43,6 +45,7 @@ services:
       - backend
   
   mongodb:
+    container_name: mongodb
     build:
       context: .
       dockerfile: Dockerfile.mongo
@@ -56,6 +59,7 @@ services:
       - "127.0.0.1:28017:28017"
 
   dataws:
+    container_name: data_pre
     env_file:
       - config_dataws.env
     build:
