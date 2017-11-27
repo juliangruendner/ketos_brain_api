@@ -126,9 +126,9 @@ class EnvironmentResource(Resource):
         args = self.parser.parse_args()
         status_new = args['status']
         if status_new and not e.status == status_new:
-            if status_new == 'running':
+            if status_new == Environment.Status.running.value:
                 dockerClient.containers.get(e.name).start()
-            elif status_new == 'stopped':
+            elif status_new == Environment.Status.stopped.value:
                 dockerClient.containers.get(e.name).stop()
             else:
                 abort(400, message="status {} is not allowed".format(status_new))
