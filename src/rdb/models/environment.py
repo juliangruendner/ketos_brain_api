@@ -1,4 +1,5 @@
-from rdb.rdb import db
+from rdb.rdb import db, LowerCaseText
+from enum import Enum
 
 
 class Environment(db.Model):
@@ -7,7 +8,8 @@ class Environment(db.Model):
     __tablename__ = "environment"
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(db.Text, unique=True, nullable=False)
+    name = db.Column(LowerCaseText, unique=True, nullable=False)
+    status = db.Column(LowerCaseText, nullable=False)
     jupyter_port = db.Column(db.Text, nullable=False)
     jupyter_token = db.Column(db.Text, nullable=False)
     jupyter_url = None
@@ -34,3 +36,7 @@ class Environment(db.Model):
         # TODO: read host address from os
         host = 'localhost'
         self.jupyter_url = host + ':' + self.jupyter_port + '/?token=' + self.jupyter_token
+
+    class Status(Enum):
+        running = 'running'
+        stopped = 'stopped'

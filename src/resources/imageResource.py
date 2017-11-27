@@ -36,7 +36,7 @@ class ImageListResource(Resource):
         args = parser.parse_args()
 
         i = Image()
-        i.name = args['name'].lower()
+        i.name = args['name']
         i.description = args['description']
         i.title = args['title']
         i.creator_id = User.query.get(g.user.id).id
@@ -74,6 +74,8 @@ class ImageResource(Resource):
         args = parser.parse_args()
         i.title = args['title']
         i.description = args['description']
+
+        db.session.commit()
         return i, 200
 
     @auth.login_required

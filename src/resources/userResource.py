@@ -47,8 +47,8 @@ class UserListResource(Resource):
         args = parser.parse_args()
 
         u = User()
-        u.username = args['username'].lower()
-        u.email = args['email'].lower()
+        u.username = args['username']
+        u.email = args['email']
         u.hash_password(args['password'])
         u.first_name = args['first_name']
         u.last_name = args['last_name']
@@ -93,8 +93,8 @@ class UserResource(Resource):
         u = self.get_user(username)
 
         args = parser.parse_args()
-        u.username = args['username'].lower()
-        u.email = args['email'].lower()
+        u.username = args['username']
+        u.email = args['email']
         u.hash_password(args['password'])
         u.first_name = args['first_name']
         u.last_name = args['last_name']

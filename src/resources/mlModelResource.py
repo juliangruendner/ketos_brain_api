@@ -45,7 +45,7 @@ class MLModelListResource(Resource):
         args = parser.parse_args()
         m = MLModel()
         m.environment_id = e.id
-        m.name = args['name'].lower()
+        m.name = args['name']
         m.description = args['description']
         m.creator_id = User.query.get(g.user.id).id
 
@@ -85,6 +85,8 @@ class MLModelResource(Resource):
 
         args = parser.parse_args()
         m.description = args['description']
+
+        db.session.commit()
         return m, 200
 
     @auth.login_required

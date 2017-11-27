@@ -8,14 +8,10 @@ from dockerUtil.dockerClient import dockerClient, docker_registry_domain, wait_f
 from resources.userResource import auth
 import requests
 
-parser = reqparse.RequestParser()
-parser.add_argument('name', type=str, required=True, help='No environment name provided', location='json')
-parser.add_argument('description', type=str, required=False, location='json')
-parser.add_argument('image_id', type=int, required=True, help='No image id provided', location='json')
-
 environment_fields = {
     'id': fields.Integer,
     'name': fields.String,
+    'status': fields.String,
     'jupyter_port': fields.String,
     'jupyter_token': fields.String,
     'jupyter_url': fields.String,
@@ -38,6 +34,11 @@ def get_open_port():
 class EnvironmentListResource(Resource):
     def __init__(self):
         super(EnvironmentListResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('name', type=str, required=True, help='No environment name provided', location='json')
+        self.parser.add_argument('status', type=str, required=False, location='json')
+        self.parser.add_argument('description', type=str, required=False, location='json')
+        self.parser.add_argument('image_id', type=int, required=True, help='No image id provided', location='json')
 
     def abort_if_image_doesnt_exist(self, image_id):
         abort(404, message="image {} doesn't exist".format(image_id))
@@ -55,10 +56,10 @@ class EnvironmentListResource(Resource):
     @auth.login_required
     @marshal_with(environment_fields)
     def post(self):
-        args = parser.parse_args()
+        args = self.parser.parse_args()
 
         e = Environment()
-        e.name = args['name'].lower()
+        e.name = args['name']
         e.description = args['description']
 
         image = Image.query.get(args['image_id'])
@@ -80,6 +81,7 @@ class EnvironmentListResource(Resource):
         # start jupyter notebook and get jupyter token
         resp = requests.post('http://' + e.name + ':5000/jupyter').json()
         e.jupyter_token = str(resp['jupyter_token'])
+        e.status = Environment.Status.running.value
 
         db.session.add(e)
         db.session.commit()
@@ -92,6 +94,11 @@ class EnvironmentListResource(Resource):
 class EnvironmentResource(Resource):
     def __init__(self):
         super(EnvironmentResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('name', type=str, required=False, help='No environment name provided', location='json')
+        self.parser.add_argument('status', type=str, required=False, location='json')
+        self.parser.add_argument('description', type=str, required=False, location='json')
+        self.parser.add_argument('image_id', type=int, required=False, help='No image id provided', location='json')
 
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
@@ -116,14 +123,30 @@ class EnvironmentResource(Resource):
     def put(self, env_id):
         e = self.get_environment(env_id)
 
-        args = parser.parse_args()
+        args = self.parser.parse_args()
+        status_new = args['status']
+        if status_new and not e.status == status_new:
+            if status_new == 'running':
+                dockerClient.containers.get(e.name).start()
+            elif status_new == 'stopped':
+                dockerClient.containers.get(e.name).stop()
+            else:
+                abort(400, message="status {} is not allowed".format(status_new))
+
+            e.status = status_new
+
         e.description = args['description']
+
+        db.session.commit()
         return e, 200
 
     @auth.login_required
     @marshal_with(environment_fields)
     def delete(self, env_id):
         e = self.get_environment(env_id)
+
+        if not e.status == 'stopped':
+            abort(405, message="environment must be stopped before it can be deleted")
 
         container = dockerClient.containers.get(e.name)
         container.remove(force=True)

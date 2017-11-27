@@ -1,5 +1,5 @@
 from passlib.apps import custom_app_context as pwd_context
-from rdb.rdb import db
+from rdb.rdb import db, LowerCaseText
 
 
 class User(db.Model):
@@ -10,8 +10,8 @@ class User(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     first_name = db.Column(db.Text, nullable=True)
     last_name = db.Column(db.Text, nullable=True)
-    username = db.Column(db.Text, unique=True, index=True, nullable=False)
-    email = db.Column(db.Text, unique=True, index=True, nullable=False)
+    username = db.Column(LowerCaseText, unique=True, index=True, nullable=False)
+    email = db.Column(LowerCaseText, unique=True, index=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
     created_images = db.relationship('Image', lazy=True, backref='creator')
     created_environments = db.relationship('Environment', lazy=True, backref='creator')

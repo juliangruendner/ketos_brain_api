@@ -1,4 +1,4 @@
-from rdb.rdb import db
+from rdb.rdb import db, LowerCaseText
 
 
 class Image(db.Model):
@@ -7,7 +7,7 @@ class Image(db.Model):
     __tablename__ = "image"
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(db.Text, unique=True, nullable=False)
+    name = db.Column(LowerCaseText, unique=True, nullable=False)
     title = db.Column(db.Text)
     description = db.Column(db.Text, nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
