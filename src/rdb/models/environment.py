@@ -15,7 +15,7 @@ class Environment(db.Model):
     jupyter_url = None
     description = db.Column(db.Text)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    authorized_users = db.relationship('User', lazy='subquery', secondary='user_environment_access')
+    # authorized_users = db.relationship('User', lazy='subquery', secondary='user_environment_access')
     image_id = db.Column(db.Integer, db.ForeignKey('image.id'), nullable=False)
     ml_models = db.relationship('MLModel', lazy=True, backref='environment')
 
@@ -36,6 +36,11 @@ class Environment(db.Model):
         # TODO: read host address from os
         host = 'localhost'
         self.jupyter_url = host + ':' + self.jupyter_port + '/?token=' + self.jupyter_token
+
+    def hide_jupyter_data(self):
+        self.jupyter_port = None
+        self.jupyter_token = None
+        self.jupyter_url = None
 
     class Status(Enum):
         running = 'running'

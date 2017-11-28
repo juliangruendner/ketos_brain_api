@@ -3,7 +3,7 @@ from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.rdb import db
 from rdb.models.user import User
 from rdb.models.image import Image
-from resources.userResource import auth
+from resources.userResource import auth, user_fields
 from resources.adminAccess import AdminAccess
 
 parser = reqparse.RequestParser()
@@ -16,7 +16,7 @@ image_fields = {
     'name': fields.String,
     'title': fields.String,
     'description': fields.String,
-    'creator_id': fields.Integer
+    'creator': fields.Nested(user_fields)
 }
 
 
@@ -68,6 +68,7 @@ class ImageResource(Resource):
 
     @auth.login_required
     @marshal_with(image_fields)
+    @AdminAccess()
     def put(self, image_id):
         i = self.get_image(image_id)
 

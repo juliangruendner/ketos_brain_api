@@ -4,7 +4,7 @@ from rdb.rdb import db
 from rdb.models.user import User
 from rdb.models.mlModel import MLModel
 from rdb.models.environment import Environment
-from resources.userResource import auth
+from resources.userResource import auth, user_fields, check_request_for_logged_in_user
 import requests
 
 parser = reqparse.RequestParser()
@@ -16,7 +16,7 @@ ml_model_fields = {
     'environment_id': fields.Integer,
     'name': fields.String,
     'description': fields.String,
-    'creator_id': fields.Integer
+    'creator': fields.Nested(user_fields)
 }
 
 
@@ -30,8 +30,6 @@ class MLModelListResource(Resource):
     @auth.login_required
     @marshal_with(ml_model_fields)
     def get(self, env_id):
-        # r = requests.get('http://nico_prod:5000/tests')
-        # return r.json()
         return MLModel.query.all(), 200
 
     @auth.login_required
@@ -82,6 +80,7 @@ class MLModelResource(Resource):
     @marshal_with(ml_model_fields)
     def put(self, env_id, model_id):
         m = self.get_ml_model(env_id, model_id)
+        check_request_for_logged_in_user(m.creator_id)
 
         args = parser.parse_args()
         m.description = args['description']
@@ -93,7 +92,18 @@ class MLModelResource(Resource):
     @marshal_with(ml_model_fields)
     def delete(self, env_id, model_id):
         m = self.get_ml_model(env_id, model_id)
+        check_request_for_logged_in_user(m.creator_id)
 
         db.session.delete(m)
         db.session.commit()
         return {'result': True}, 204
+
+
+class UserMLModelListResource(Resource):
+    def __init__(self):
+        super(UserMLModelListResource, self).__init__()
+
+    @auth.login_required
+    @marshal_with(ml_model_fields)
+    def get(self, user_id):
+        return MLModel.query.filter_by(creator_id=user_id).all(), 200
