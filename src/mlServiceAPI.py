@@ -24,7 +24,7 @@ api.add_resource(ImageListResource, '/images', endpoint='images')
 api.add_resource(ImageResource, '/images/<int:image_id>', endpoint='image')
 
 if __name__ == '__main__':
-    connect_to_db(app, 'postgresql://mad:MAD@db:5432/mad')
+    connect_to_db(app)
     create_all()
     create_admin_user()
     # set debug false in production mode

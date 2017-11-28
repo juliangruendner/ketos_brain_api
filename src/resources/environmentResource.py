@@ -4,9 +4,10 @@ from rdb.rdb import db
 from rdb.models.environment import Environment
 from rdb.models.user import User
 from rdb.models.image import Image
-from dockerUtil.dockerClient import dockerClient, docker_registry_domain, wait_for_it
+from dockerUtil.dockerClient import dockerClient, wait_for_it
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
 from resources.adminAccess import is_admin_user
+import config
 import requests
 
 environment_fields = {
@@ -87,7 +88,7 @@ class EnvironmentListResource(Resource):
         u = User.query.get(g.user.id)
         e.creator_id = u.id
 
-        image_name = docker_registry_domain + "/" + image.name
+        image_name = config.DOCKER_REGISTRY_DOMAIN + "/" + image.name
         e.jupyter_port = get_open_port()
 
         dockerClient.containers.run(image_name, detach=True, name=e.name, network="mlservice_environment", ports={"8000/tcp": e.jupyter_port})

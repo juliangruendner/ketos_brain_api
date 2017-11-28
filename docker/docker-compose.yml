@@ -29,6 +29,7 @@ services:
         target: /usr/bin/docker
     env_file:
       - config_mlService.env
+      - config_db.env
 
   db:
     container_name: db
