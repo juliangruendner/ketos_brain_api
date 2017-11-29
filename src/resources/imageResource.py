@@ -16,7 +16,9 @@ image_fields = {
     'name': fields.String,
     'title': fields.String,
     'description': fields.String,
-    'creator': fields.Nested(user_fields)
+    'creator': fields.Nested(user_fields),
+    'created_at': fields.DateTime,
+    'updated_at': fields.DateTime
 }
 
 

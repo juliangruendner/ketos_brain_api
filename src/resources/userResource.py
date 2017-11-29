@@ -12,7 +12,9 @@ user_fields = {
     'first_name': fields.String,
     'last_name': fields.String,
     'username': fields.String,
-    'email': fields.String
+    'email': fields.String,
+    'created_at': fields.DateTime,
+    'updated_at': fields.DateTime
 }
 
 

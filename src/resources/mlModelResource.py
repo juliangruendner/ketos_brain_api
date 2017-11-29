@@ -16,7 +16,9 @@ ml_model_fields = {
     'environment_id': fields.Integer,
     'name': fields.String,
     'description': fields.String,
-    'creator': fields.Nested(user_fields)
+    'creator': fields.Nested(user_fields),
+    'created_at': fields.DateTime,
+    'updated_at': fields.DateTime
 }
 
 

@@ -19,7 +19,9 @@ environment_fields = {
     'jupyter_url': fields.String,
     'description': fields.String,
     'creator': fields.Nested(user_fields),
-    'image_id': fields.Integer
+    'image_id': fields.Integer,
+    'created_at': fields.DateTime,
+    'updated_at': fields.DateTime
 }
 
 

@@ -1,5 +1,6 @@
 from rdb.rdb import db, LowerCaseText
 from enum import Enum
+import datetime
 
 
 class Environment(db.Model):
@@ -18,6 +19,8 @@ class Environment(db.Model):
     # authorized_users = db.relationship('User', lazy='subquery', secondary='user_environment_access')
     image_id = db.Column(db.Integer, db.ForeignKey('image.id'), nullable=False)
     ml_models = db.relationship('MLModel', lazy=True, backref='environment')
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
 
     def __init__(self):
         super(Environment, self).__init__()

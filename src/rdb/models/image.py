@@ -1,4 +1,5 @@
 from rdb.rdb import db, LowerCaseText
+import datetime
 
 
 class Image(db.Model):
@@ -12,6 +13,8 @@ class Image(db.Model):
     description = db.Column(db.Text, nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     environments_based_on_this = db.relationship('Environment', lazy=True, backref='base_image')
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
 
     def __init__(self):
         super(Image, self).__init__()
