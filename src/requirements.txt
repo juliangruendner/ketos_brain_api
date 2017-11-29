@@ -6,3 +6,4 @@ passlib
 psycopg2
 docker
 requests
+flask_cors

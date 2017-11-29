@@ -5,11 +5,14 @@ from resources.imageResource import ImageListResource, ImageResource
 from resources.environmentResource import EnvironmentListResource, EnvironmentResource, UserEnvironmentListResource
 from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource
 from rdb.rdb import connect_to_db, create_all, create_admin_user
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
 
+CORS(app)
 
 api.add_resource(UserListResource, '/users', endpoint='users')
 api.add_resource(UserLoginResource, '/users/login', endpoint='user_login')
