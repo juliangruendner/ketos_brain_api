@@ -1,10 +1,7 @@
-import os
 import docker
 import subprocess
 import config
 
-
-docker_registry_domain = os.environ.get('DOCKER_REGISTRY_DOMAIN')
 
 dockerClient = docker.from_env()
 

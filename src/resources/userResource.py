@@ -30,7 +30,7 @@ def verify_password(username, password):
 
 def check_request_for_logged_in_user(user_id):
     if not (is_admin_user() or user_id == g.user.id):
-        abort(403, message="only an admin or the logged in user matching the requested user id is allowed to use this") 
+        abort(403, message="only an admin or the logged in user matching the requested user id is allowed to use this")
 
 
 class UserLoginResource(Resource):

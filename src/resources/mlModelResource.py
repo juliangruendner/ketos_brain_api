@@ -5,7 +5,6 @@ from rdb.models.user import User
 from rdb.models.mlModel import MLModel
 from rdb.models.environment import Environment
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
-import requests
 
 parser = reqparse.RequestParser()
 parser.add_argument('environment_id', type=int, required=True, help='No environment id provided', location='json')
