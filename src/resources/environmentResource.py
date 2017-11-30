@@ -151,7 +151,8 @@ class EnvironmentResource(Resource):
 
             e.status = status_new
 
-        e.description = args['description']
+        if args['description']:
+            e.description = args['description']
 
         db.session.commit()
         return e, 200
