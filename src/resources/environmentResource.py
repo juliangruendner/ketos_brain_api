@@ -9,7 +9,6 @@ from resources.userResource import auth, user_fields, check_request_for_logged_i
 from resources.adminAccess import is_admin_user
 import config
 import requests
-import copy
 
 environment_fields = {
     'id': fields.Integer,
@@ -159,7 +158,6 @@ class EnvironmentResource(Resource):
         return e, 200
 
     @auth.login_required
-    @marshal_with(environment_fields)
     def delete(self, env_id):
         e = self.get_environment(env_id)
 
