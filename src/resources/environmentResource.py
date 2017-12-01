@@ -171,11 +171,9 @@ class EnvironmentResource(Resource):
         container = dockerClient.containers.get(e.name)
         container.remove(force=True)
 
-        ret = copy.deepcopy(e)
-
         db.session.delete(e)
         db.session.commit()
-        return ret, 204
+        return '{ "id": ' + env_id + ' }', 204
 
 
 class UserEnvironmentListResource(Resource):
