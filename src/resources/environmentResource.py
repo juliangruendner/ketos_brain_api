@@ -176,7 +176,7 @@ class EnvironmentResource(Resource):
 
         id = ID()
         id.id = env_id
-        return id, 204
+        return id, 200
 
 
 class UserEnvironmentListResource(Resource):
