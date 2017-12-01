@@ -158,7 +158,6 @@ class EnvironmentResource(Resource):
         return e, 200
 
     @auth.login_required
-    @marshal_with(environment_fields)
     def delete(self, env_id):
         e = self.get_environment(env_id)
 
@@ -172,7 +171,7 @@ class EnvironmentResource(Resource):
 
         db.session.delete(e)
         db.session.commit()
-        return {'result': True}, 204
+        return env_id, 204
 
 
 class UserEnvironmentListResource(Resource):
