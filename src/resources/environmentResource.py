@@ -171,7 +171,7 @@ class EnvironmentResource(Resource):
 
         db.session.delete(e)
         db.session.commit()
-        return env_id, 204
+        return {'id': env_id}, 204
 
 
 class UserEnvironmentListResource(Resource):
