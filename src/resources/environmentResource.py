@@ -9,6 +9,7 @@ from resources.userResource import auth, user_fields, check_request_for_logged_i
 from resources.adminAccess import is_admin_user
 import config
 import requests
+import copy
 
 environment_fields = {
     'id': fields.Integer,
@@ -170,9 +171,11 @@ class EnvironmentResource(Resource):
         container = dockerClient.containers.get(e.name)
         container.remove(force=True)
 
+        ret = copy.deepcopy(e)
+
         db.session.delete(e)
         db.session.commit()
-        return e, 204
+        return ret, 204
 
 
 class UserEnvironmentListResource(Resource):
