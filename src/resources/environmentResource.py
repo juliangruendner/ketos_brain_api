@@ -4,6 +4,7 @@ from rdb.rdb import db
 from rdb.models.environment import Environment
 from rdb.models.user import User
 from rdb.models.image import Image
+from rdb.models.id import ID, id_fields
 from dockerUtil.dockerClient import dockerClient, wait_for_it
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
 from resources.adminAccess import is_admin_user
@@ -158,6 +159,7 @@ class EnvironmentResource(Resource):
         return e, 200
 
     @auth.login_required
+    @marshal_with(id_fields)
     def delete(self, env_id):
         e = self.get_environment(env_id)
 
@@ -171,7 +173,10 @@ class EnvironmentResource(Resource):
 
         db.session.delete(e)
         db.session.commit()
-        return {'id': '{}'.format(env_id)}, 204
+
+        id = ID()
+        id.id = env_id
+        return id, 204
 
 
 class UserEnvironmentListResource(Resource):
