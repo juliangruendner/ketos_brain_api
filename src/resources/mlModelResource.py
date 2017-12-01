@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.rdb import db
 from rdb.models.user import User
 from rdb.models.mlModel import MLModel
+from rdb.models.id import ID, id_fields
 from rdb.models.environment import Environment
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
 
@@ -90,14 +91,17 @@ class MLModelResource(Resource):
         return m, 200
 
     @auth.login_required
-    @marshal_with(ml_model_fields)
+    @marshal_with(id_fields)
     def delete(self, env_id, model_id):
         m = self.get_ml_model(env_id, model_id)
         check_request_for_logged_in_user(m.creator_id)
 
         db.session.delete(m)
         db.session.commit()
-        return {'result': True}, 204
+
+        id = ID()
+        id.id = model_id
+        return id, 200
 
 
 class UserMLModelListResource(Resource):

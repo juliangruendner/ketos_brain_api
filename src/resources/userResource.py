@@ -1,6 +1,7 @@
 from flask import g
 from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.models.user import User, get_user_by_username
+from rdb.models.id import ID, id_fields
 from rdb.rdb import db
 from flask_httpauth import HTTPBasicAuth
 from resources.adminAccess import AdminAccess, is_admin_user
@@ -111,10 +112,13 @@ class UserResource(Resource):
 
         db.session.delete(u)
         db.session.commit()
-        return {'result': True}, 204
+
+        id = ID()
+        id.id = user_id
+        return id, 204
 
     @auth.login_required
-    @marshal_with(user_fields)
+    @marshal_with(id_fields)
     def put(self, user_id):
         check_request_for_logged_in_user(user_id)
 

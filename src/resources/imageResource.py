@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.rdb import db
 from rdb.models.user import User
 from rdb.models.image import Image
+from rdb.models.id import ID, id_fields
 from resources.userResource import auth, user_fields
 from resources.adminAccess import AdminAccess
 
@@ -82,11 +83,14 @@ class ImageResource(Resource):
         return i, 200
 
     @auth.login_required
-    @marshal_with(image_fields)
+    @marshal_with(id_fields)
     @AdminAccess()
     def delete(self, image_id):
         i = self.get_image(image_id)
 
         db.session.delete(i)
         db.session.commit()
-        return {'result': True}, 204
+
+        id = ID()
+        id.id = image_id
+        return id, 200
