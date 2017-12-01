@@ -4,7 +4,7 @@ from resources.userResource import UserListResource, UserResource, UserLoginReso
 from resources.imageResource import ImageListResource, ImageResource
 from resources.environmentResource import EnvironmentListResource, EnvironmentResource, UserEnvironmentListResource
 from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource
-from rdb.rdb import connect_to_db, create_all, create_admin_user
+from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images
 from flask_cors import CORS
 
 
@@ -30,5 +30,6 @@ if __name__ == '__main__':
     connect_to_db(app)
     create_all()
     create_admin_user()
+    create_default_images()
     # set debug false in production mode
     app.run(debug=True, host='0.0.0.0', port=5000)
