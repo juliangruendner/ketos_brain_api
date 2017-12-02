@@ -94,7 +94,7 @@ class EnvironmentListResource(Resource):
         image_name = config.DOCKER_REGISTRY_DOMAIN + "/" + image.name
         e.jupyter_port = get_open_port()
 
-        dockerClient.containers.run(image_name, detach=True, name=e.name, network="mlservice_environment", ports={"8000/tcp": e.jupyter_port})
+        dockerClient.containers.run(image_name, detach=True, name=e.name, network=config.PROJECT_NAME+"_environment", ports={"8000/tcp": e.jupyter_port})
         start_jupyter(e)
 
         db.session.add(e)
