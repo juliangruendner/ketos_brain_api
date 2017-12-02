@@ -1,1 +1,1 @@
-docker-compose -f docker/docker-compose.yml -p mlservice down --rmi all
+docker-compose -f docker/docker-compose.yml -p mlservicedev down --rmi all

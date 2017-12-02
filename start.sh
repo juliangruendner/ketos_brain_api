@@ -1,1 +1,1 @@
-docker-compose -f docker/docker-compose.yml -p mlservice up
+docker-compose -f docker/docker-compose.yml -p mlservicedev up

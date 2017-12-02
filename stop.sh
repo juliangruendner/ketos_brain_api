@@ -1,1 +1,1 @@
-docker-compose -f docker/docker-compose.yml -p mlservice stop
+docker-compose -f docker/docker-compose.yml -p mlservicedev stop
