@@ -21,8 +21,8 @@ api.add_resource(UserEnvironmentListResource, '/users/<int:user_id>/environments
 api.add_resource(UserMLModelListResource, '/users/<int:user_id>/models', endpoint='models_for_user')
 api.add_resource(EnvironmentListResource, '/environments', endpoint='environments')
 api.add_resource(EnvironmentResource, '/environments/<int:env_id>', endpoint='environment')
-api.add_resource(MLModelListResource, '/environments/<int:env_id>/models', endpoint='models')
-api.add_resource(MLModelResource, '/environments/<int:env_id>/models/<int:model_id>', endpoint='model')
+api.add_resource(MLModelListResource, '/models', endpoint='models')
+api.add_resource(MLModelResource, '/models/<int:model_id>', endpoint='model')
 api.add_resource(ImageListResource, '/images', endpoint='images')
 api.add_resource(ImageResource, '/images/<int:image_id>', endpoint='image')
 

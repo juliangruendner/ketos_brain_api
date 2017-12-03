@@ -6,6 +6,8 @@ from rdb.models.mlModel import MLModel
 from rdb.models.id import ID, id_fields
 from rdb.models.environment import Environment
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
+import requests
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('environment_id', type=int, required=True, help='No environment id provided', location='json')
@@ -31,23 +33,26 @@ class MLModelListResource(Resource):
 
     @auth.login_required
     @marshal_with(ml_model_fields)
-    def get(self, env_id):
+    def get(self):
         return MLModel.query.all(), 200
 
     @auth.login_required
     @marshal_with(ml_model_fields)
-    def post(self, env_id):
-        e = Environment.query.get(env_id)
+    def post(self):
+        args = parser.parse_args()
+        e = Environment.query.get(args['environment_id'])
 
         if not e:
-            self.abort_if_environment_doesnt_exist(env_id)
+            self.abort_if_environment_doesnt_exist(args['environment_id'])
 
-        args = parser.parse_args()
         m = MLModel()
         m.environment_id = e.id
         m.name = args['name']
         m.description = args['description']
         m.creator_id = User.query.get(g.user.id).id
+
+        resp = requests.post('http://' + e.container_name + ':5000/models').json()
+        m.ml_model_name = str(resp['modelName'])
 
         db.session.add(m)
         db.session.commit()
