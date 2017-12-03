@@ -180,6 +180,7 @@ class EnvironmentResource(Resource):
         container.remove(force=True)
 
         e.ml_models = []
+        db.session.commit()
 
         db.session.delete(e)
         db.session.commit()
