@@ -3,7 +3,7 @@ version: '3.2'
 services:
 
   ml_service:
-    container_name: ml_service_dev
+    container_name: ml_service
     build:
       context: .
       dockerfile: Dockerfile.mlService.dev
@@ -32,7 +32,7 @@ services:
       - config_db.env
 
   db:
-    container_name: db_dev
+    container_name: db
     restart: unless-stopped
     image: postgres:latest
     restart: unless-stopped
