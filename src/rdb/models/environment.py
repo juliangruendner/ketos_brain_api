@@ -20,7 +20,7 @@ class Environment(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     # authorized_users = db.relationship('User', lazy='subquery', secondary='user_environment_access')
     image_id = db.Column(db.Integer, db.ForeignKey('image.id'), nullable=False)
-    ml_models = db.relationship('MLModel', lazy=True, backref='environment')
+    ml_models = db.relationship('MLModel', lazy='select', cascade='delete, delete-orphan', backref='environment')
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
 
