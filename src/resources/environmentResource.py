@@ -179,6 +179,8 @@ class EnvironmentResource(Resource):
         container = dockerClient.containers.get(e.container_id)
         container.remove(force=True)
 
+        e.ml_models = []
+
         db.session.delete(e)
         db.session.commit()
 
