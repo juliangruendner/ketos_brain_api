@@ -9,7 +9,9 @@ class Environment(db.Model):
     __tablename__ = "environment"
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(LowerCaseText, unique=True, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    container_id = db.Column(db.Text, nullable=False)
+    container_name = db.Column(db.Text, nullable=False)
     status = db.Column(LowerCaseText, nullable=False)
     jupyter_port = db.Column(db.Text, nullable=False)
     jupyter_token = db.Column(db.Text, nullable=False)

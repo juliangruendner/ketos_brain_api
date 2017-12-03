@@ -10,10 +10,13 @@ from resources.userResource import auth, user_fields, check_request_for_logged_i
 from resources.adminAccess import is_admin_user
 import config
 import requests
+import uuid
 
 environment_fields = {
     'id': fields.Integer,
     'name': fields.String,
+    'container_id': fields.String,
+    'container_name': fields.String,
     'status': fields.String,
     'jupyter_port': fields.String,
     'jupyter_token': fields.String,
@@ -45,9 +48,9 @@ def handle_jupyter_data(e):
 
 def start_jupyter(e):
     # wait for container api to be up and running
-    wait_for_it(e.name, 5000)
+    wait_for_it(e.container_name, 5000)
     # start jupyter notebook and get jupyter token
-    resp = requests.post('http://' + e.name + ':5000/jupyter').json()
+    resp = requests.post('http://' + e.container_name + ':5000/jupyter').json()
     e.jupyter_token = str(resp['jupyter_token'])
     e.status = Environment.Status.running.value
 
@@ -94,7 +97,9 @@ class EnvironmentListResource(Resource):
         image_name = config.DOCKER_REGISTRY_DOMAIN + "/" + image.name
         e.jupyter_port = get_open_port()
 
-        dockerClient.containers.run(image_name, detach=True, name=e.name, network=config.PROJECT_NAME+"_environment", ports={"8000/tcp": e.jupyter_port})
+        e.container_name = str(uuid.uuid4().hex)
+        container = dockerClient.containers.run(image_name, name=e.container_name, detach=True, network=config.PROJECT_NAME+"_environment", ports={"8000/tcp": e.jupyter_port})
+        e.container_id = container.id
         start_jupyter(e)
 
         db.session.add(e)
@@ -143,14 +148,17 @@ class EnvironmentResource(Resource):
         status_new = args['status']
         if status_new and not e.status == status_new:
             if status_new == Environment.Status.running.value:
-                dockerClient.containers.get(e.name).start()
+                dockerClient.containers.get(e.container_id).start()
                 start_jupyter(e)
             elif status_new == Environment.Status.stopped.value:
-                dockerClient.containers.get(e.name).stop()
+                dockerClient.containers.get(e.container_id).stop()
             else:
                 abort(400, message="status {} is not allowed".format(status_new))
 
             e.status = status_new
+
+        if args['name']:
+            e.name = args['name']
 
         if args['description']:
             e.description = args['description']
@@ -168,7 +176,7 @@ class EnvironmentResource(Resource):
         if not e.status == 'stopped':
             abort(405, message="environment must be stopped before it can be deleted")
 
-        container = dockerClient.containers.get(e.name)
+        container = dockerClient.containers.get(e.container_id)
         container.remove(force=True)
 
         db.session.delete(e)
