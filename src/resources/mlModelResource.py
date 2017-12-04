@@ -15,7 +15,9 @@ parser.add_argument('name', type=str, required=True, help='No model name provide
 parser.add_argument('description', type=str, required=False, location='json')
 
 ml_model_fields = {
+    'id': fields.Integer,
     'environment_id': fields.Integer,
+    'ml_model_name': fields.String,
     'name': fields.String,
     'description': fields.String,
     'creator': fields.Nested(user_fields),
