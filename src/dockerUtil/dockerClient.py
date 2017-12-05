@@ -5,6 +5,9 @@ import config
 
 dockerClient = docker.from_env()
 
+print(config.DOCKER_REGISTRY_USERNAME)
+print(config.DOCKER_REGISTRY_PASSWORD)
+print(config.DOCKER_REGISTRY_URL)
 dockerClient.login(username=config.DOCKER_REGISTRY_USERNAME, password=config.DOCKER_REGISTRY_PASSWORD, registry=config.DOCKER_REGISTRY_URL)
 
 
