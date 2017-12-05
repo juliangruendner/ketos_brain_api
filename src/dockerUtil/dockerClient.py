@@ -5,7 +5,7 @@ import config
 
 dockerClient = docker.from_env()
 
-dockerClient.login(username=config.DOCKER_REGISTRY_USERNAME, password=config.DOCKER_REGISTRY_PASSWORD, registry=config.DOCKER_REGISTRY_URL)
+# dockerClient.login(username=config.DOCKER_REGISTRY_USERNAME, password=config.DOCKER_REGISTRY_PASSWORD, registry=config.DOCKER_REGISTRY_URL)
 
 
 def wait_for_it(host, port, timeout=0):
