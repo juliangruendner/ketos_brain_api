@@ -12,6 +12,11 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
 
+connect_to_db(app)
+create_all()
+create_admin_user()
+create_default_images()
+
 CORS(app)
 
 api.add_resource(UserListResource, '/users', endpoint='users')
@@ -27,9 +32,4 @@ api.add_resource(ImageListResource, '/images', endpoint='images')
 api.add_resource(ImageResource, '/images/<int:image_id>', endpoint='image')
 
 if __name__ == '__main__':
-    connect_to_db(app)
-    create_all()
-    create_admin_user()
-    create_default_images()
-    # set debug false in production mode
     app.run(debug=True, host='0.0.0.0', port=5000)

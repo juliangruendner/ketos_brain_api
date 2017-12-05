@@ -4,9 +4,7 @@ services:
 
   ml_service:
     container_name: ml_service
-    build:
-      context: .
-      dockerfile: Dockerfile.mlService.dev
+    image: python:3
     restart: unless-stopped
     depends_on:
       - db
@@ -30,6 +28,7 @@ services:
     env_file:
       - config_mlService.env
       - config_db.env
+    command: bash -c "cd /root/src && chmod +x startup.dev.sh && ./startup.dev.sh"
 
   db:
     container_name: db

@@ -1,5 +1,0 @@
-FROM python:3
-
-CMD cd /root/src && \
-    chmod +x startup.sh && \
-    ./startup.sh
