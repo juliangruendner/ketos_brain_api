@@ -1,18 +1,9 @@
 import docker
 import subprocess
 import config
-import os
-
 
 dockerClient = docker.from_env()
 
-print('group!! {}'.format(os.getegid()))
-print('user id!! {}'.format(os.getuid()))
-print('user!! {}'.format(os.path.expanduser('~')))
-
-print(config.DOCKER_REGISTRY_USERNAME)
-print(config.DOCKER_REGISTRY_PASSWORD)
-print(config.DOCKER_REGISTRY_URL)
 dockerClient.login(username=config.DOCKER_REGISTRY_USERNAME, password=config.DOCKER_REGISTRY_PASSWORD, registry=config.DOCKER_REGISTRY_URL)
 
 
