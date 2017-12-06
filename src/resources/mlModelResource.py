@@ -7,6 +7,8 @@ from rdb.models.featureSet import FeatureSet
 from rdb.models.id import ID, id_fields
 from rdb.models.environment import Environment
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
+from resources.environmentResource import environment_fields
+from resources.featureSetResource import feature_set_fields
 import requests
 
 ml_model_fields = {
@@ -18,7 +20,9 @@ ml_model_fields = {
     'creator': fields.Nested(user_fields),
     'created_at': fields.DateTime,
     'updated_at': fields.DateTime,
-    'feature_set_id': fields.Integer
+    'feature_set_id': fields.Integer,
+    'environment': fields.Nested(environment_fields),
+    'feature_set': fields.Nested(feature_set_fields)
 }
 
 feature_fields = {
