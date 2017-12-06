@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.rdb import db
 from rdb.models.user import User
 from rdb.models.mlModel import MLModel
+from rdb.models.featureSet import FeatureSet
 from rdb.models.id import ID, id_fields
 from rdb.models.environment import Environment
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
@@ -16,12 +17,17 @@ ml_model_fields = {
     'description': fields.String,
     'creator': fields.Nested(user_fields),
     'created_at': fields.DateTime,
-    'updated_at': fields.DateTime
+    'updated_at': fields.DateTime,
+    'feature_set_id': fields.Integer
 }
 
 
 def abort_if_ml_model_doesnt_exist(model_id):
     abort(404, message="model {} for environment {} doesn't exist".format(model_id))
+
+
+def abort_if_feature_set_doesnt_exist(feature_set_id):
+    abort(404, message="feature set {} doesn't exist".format(feature_set_id))
 
 
 def get_ml_model(model_id):
@@ -33,6 +39,15 @@ def get_ml_model(model_id):
     return m
 
 
+def get_feature_set(feature_set_id):
+    fs = FeatureSet.query.get(feature_set_id)
+
+    if not fs:
+        abort_if_feature_set_doesnt_exist(feature_set_id)
+
+    return fs
+
+
 class MLModelListResource(Resource):
     def __init__(self):
         super(MLModelListResource, self).__init__()
@@ -40,6 +55,7 @@ class MLModelListResource(Resource):
         self.parser.add_argument('environment_id', type=int, required=True, help='No environment id provided', location='json')
         self.parser.add_argument('name', type=str, required=True, help='No model name provided', location='json')
         self.parser.add_argument('description', type=str, required=False, location='json')
+        self.parser.add_argument('feature_set_id', type=int, required=False, location='json')
 
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
@@ -67,6 +83,10 @@ class MLModelListResource(Resource):
         resp = requests.post('http://' + e.container_name + ':5000/models').json()
         m.ml_model_name = str(resp['modelName'])
 
+        if args['feature_set_id']:
+            fs = get_feature_set(args['feature_set_id'])
+            m.feature_set_id = fs.id
+
         db.session.add(m)
         db.session.commit()
 
@@ -79,6 +99,7 @@ class MLModelResource(Resource):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('name', type=str, required=False, location='json')
         self.parser.add_argument('description', type=str, location='json')
+        self.parser.add_argument('feature_set_id', type=int, required=False, location='json')
 
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
@@ -100,6 +121,10 @@ class MLModelResource(Resource):
 
         if args['description']:
             m.description = args['description']
+
+        if args['feature_set_id']:
+            fs = get_feature_set(args['feature_set_id'])
+            m.feature_set_id = fs.id
 
         db.session.commit()
         return m, 200
