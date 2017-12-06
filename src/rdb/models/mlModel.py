@@ -15,6 +15,7 @@ class MLModel(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
+    feature_set_id = db.Column(db.Integer, db.ForeignKey('feature_set.id'), nullable=True)
 
     def __init__(self):
         super(MLModel, self).__init__()
