@@ -23,7 +23,15 @@ class DataResource(Resource):
 
     @auth.login_required
     def get(self):
-        return "Todo - implement", 400
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('jobId', type=str, required=True, location='args')
+        args = parser.parse_args()
+        job_id = args['jobId']
+
+        resp = requests.get('http://data_pre:5000/crawler/aggregation/' + job_id)
+
+        return resp, 200
 
     @auth.login_required
     def post(self):
@@ -39,11 +47,7 @@ class DataResource(Resource):
             feature_set.append(cur_feature)
 
         preprocess_body = {'patient_ids' : patient_ids, 'feature_set': feature_set}
-        payload = {'dataUrl': 'test123Buhu'}
 
-        resp = requests.post('http://docker_api_1:5000/models/mlmodel_1/execute', json = preprocess_body, params=payload).json()
-        #m.ml_model_name = str(resp['modelName'])
-        # db.session.add(m)
-        # db.session.commit()
+        resp = requests.post('http://data_pre:5000/crawler/jobs', json = preprocess_body).json()
 
         return resp, 200

@@ -19,6 +19,12 @@ ml_model_fields = {
     'updated_at': fields.DateTime
 }
 
+feature_fields = {
+    'resource': fields.String,
+    'key': fields.String(attribute='parameter_name'),
+    'value': fields.String,
+}
+
 
 def abort_if_ml_model_doesnt_exist(model_id):
     abort(404, message="model {} for environment {} doesn't exist".format(model_id))
@@ -136,9 +142,26 @@ class MLModelPredicitionResource(Resource):
 
     @auth.login_required
     def get(self, model_id):
-        m = get_ml_model(model_id)
+        
+        parser = reqparse.RequestParser()
+        parser.add_argument('patient_ids', type=int,action='append', required=True, help='no patientIds provided', location='json')
+        parser.add_argument('feature_set_id', type=int, required=True, help='No feature set id provided', location='json')
+        args = parser.parse_args()
+        patient_ids = args['patient_ids']
+        feature_set_id = args['feature_set_id']
 
-        args = self.parser.parse_args()
-        resp = requests.get('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + '/execute?dataUrl=' + args['dataUrl']).json()
+        features = FeatureSet.query.get(feature_set_id).features
+        feature_set = []
+
+        for feature in features:
+            cur_feature = marshal(feature, feature_fields)
+            feature_set.append(cur_feature)
+
+        preprocess_body = {'patient_ids' : patient_ids, 'feature_set': feature_set}
+
+        resp = requests.post('http:/data_pre:5000/crawler ', json = preprocess_body, params=payload).json()
+
+        data_url = {'dataUrl': resp}
+        resp = requests.get('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + '/execute', params = data_url).json()
 
         return resp, 200
