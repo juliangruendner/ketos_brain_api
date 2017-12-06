@@ -3,7 +3,7 @@ from flask_restful import Api
 from resources.userResource import UserListResource, UserResource, UserLoginResource
 from resources.imageResource import ImageListResource, ImageResource
 from resources.environmentResource import EnvironmentListResource, EnvironmentResource, UserEnvironmentListResource
-from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource
+from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource, MLModelPredicitionResource
 from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images
 from flask_cors import CORS
 
@@ -28,6 +28,7 @@ api.add_resource(EnvironmentListResource, '/environments', endpoint='environment
 api.add_resource(EnvironmentResource, '/environments/<int:env_id>', endpoint='environment')
 api.add_resource(MLModelListResource, '/models', endpoint='models')
 api.add_resource(MLModelResource, '/models/<int:model_id>', endpoint='model')
+api.add_resource(MLModelPredicitionResource, '/models/<int:model_id>/prediction', endpoint='model_prediction')
 api.add_resource(ImageListResource, '/images', endpoint='images')
 api.add_resource(ImageResource, '/images/<int:image_id>', endpoint='image')
 

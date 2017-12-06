@@ -8,12 +8,6 @@ from rdb.models.environment import Environment
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
 import requests
 
-
-parser = reqparse.RequestParser()
-parser.add_argument('environment_id', type=int, required=True, help='No environment id provided', location='json')
-parser.add_argument('name', type=str, required=True, help='No model name provided', location='json')
-parser.add_argument('description', type=str, required=False, location='json')
-
 ml_model_fields = {
     'id': fields.Integer,
     'environment_id': fields.Integer,
@@ -26,9 +20,26 @@ ml_model_fields = {
 }
 
 
+def abort_if_ml_model_doesnt_exist(model_id):
+    abort(404, message="model {} for environment {} doesn't exist".format(model_id))
+
+
+def get_ml_model(model_id):
+    m = MLModel.query.get(model_id)
+
+    if not m:
+        abort_if_ml_model_doesnt_exist(model_id)
+
+    return m
+
+
 class MLModelListResource(Resource):
     def __init__(self):
         super(MLModelListResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('environment_id', type=int, required=True, help='No environment id provided', location='json')
+        self.parser.add_argument('name', type=str, required=True, help='No model name provided', location='json')
+        self.parser.add_argument('description', type=str, required=False, location='json')
 
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
@@ -41,7 +52,7 @@ class MLModelListResource(Resource):
     @auth.login_required
     @marshal_with(ml_model_fields)
     def post(self):
-        args = parser.parse_args()
+        args = self.parser.parse_args()
         e = Environment.query.get(args['environment_id'])
 
         if not e:
@@ -65,20 +76,12 @@ class MLModelListResource(Resource):
 class MLModelResource(Resource):
     def __init__(self):
         super(MLModelResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('name', type=str, required=False, location='json')
+        self.parser.add_argument('description', type=str, location='json')
 
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
-
-    def abort_if_ml_model_doesnt_exist(self, model_id):
-        abort(404, message="model {} for environment {} doesn't exist".format(model_id))
-
-    def get_ml_model(self, model_id):
-        m = MLModel.query.get(model_id)
-
-        if not m:
-            self.abort_if_ml_model_doesnt_exist(model_id)
-
-        return m
 
     @auth.login_required
     @marshal_with(ml_model_fields)
@@ -91,7 +94,7 @@ class MLModelResource(Resource):
         m = self.get_ml_model(model_id)
         check_request_for_logged_in_user(m.creator_id)
 
-        args = parser.parse_args()
+        args = self.parser.parse_args()
         if args['name']:
             m.name = args['name']
 
@@ -123,3 +126,19 @@ class UserMLModelListResource(Resource):
     @marshal_with(ml_model_fields)
     def get(self, user_id):
         return MLModel.query.filter_by(creator_id=user_id).all(), 200
+
+
+class MLModelPredicitionResource(Resource):
+    def __init__(self):
+        super(MLModelPredicitionResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('dataUrl', type=str, required=True, help='no data url provided', location='args')
+
+    @auth.login_required
+    def get(self, model_id):
+        m = get_ml_model(model_id)
+
+        args = self.parser.parse_args()
+        resp = requests.get('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + 'execute?dataUrl=' + args['dataUrl']).json()
+
+        return resp, 200
