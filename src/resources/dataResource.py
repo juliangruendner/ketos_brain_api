@@ -50,6 +50,8 @@ class DataResource(Resource):
 
         preprocess_body = {'patient_ids' : patient_ids, 'feature_set': feature_set}
 
+        print(preprocess_body)
+
         resp = requests.post('http://data_pre:5000/crawler/jobs', json = preprocess_body).json()
 
         return resp, 200
