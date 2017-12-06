@@ -139,7 +139,7 @@ class MLModelPredicitionResource(Resource):
         m = get_ml_model(model_id)
 
         args = self.parser.parse_args()
-        print('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + 'execute?dataUrl=' + args['dataUrl'])
-        resp = requests.get('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + 'execute?dataUrl=' + args['dataUrl']).json()
+        print('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + '/execute?dataUrl=' + args['dataUrl'])
+        resp = requests.get('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + '/execute?dataUrl=' + args['dataUrl']).json()
 
         return resp, 200
