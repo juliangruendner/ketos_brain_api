@@ -14,6 +14,7 @@ class FeatureSet(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
     features = db.relationship('Feature', lazy='subquery', secondary='feature_feature_set')
+    ml_models = db.relationship('MLModel', lazy='select', cascade='delete, delete-orphan', backref='feature_set')
 
     def __init__(self):
         super(FeatureSet, self).__init__()
