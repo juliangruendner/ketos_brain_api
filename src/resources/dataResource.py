@@ -31,7 +31,7 @@ class DataResource(Resource):
 
         resp = requests.get('http://data_pre:5000/crawler/aggregation/' + job_id)
 
-        return resp, 200
+        return resp.json(), 200
 
     @auth.login_required
     def post(self):
