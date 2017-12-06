@@ -16,7 +16,7 @@ class Feature(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
-    feature_sets = db.relationship('FeatureSet', lazy='subquery', secondary='feature_feature_set')
+    feature_sets = db.relationship('FeatureSet', lazy=True, secondary='feature_feature_set')
 
     def __init__(self):
         super(Feature, self).__init__()
