@@ -69,38 +69,42 @@ class MLModelResource(Resource):
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
 
-    def abort_if_ml_model_doesnt_exist(self, env_id, model_id):
-        abort(404, message="model {} for environment {} doesn't exist".format(model_id, env_id))
+    def abort_if_ml_model_doesnt_exist(self, model_id):
+        abort(404, message="model {} for environment {} doesn't exist".format(model_id))
 
-    def get_ml_model(self, env_id, model_id):
-        m = MLModel.query.get(env_id, model_id)
+    def get_ml_model(self, model_id):
+        m = MLModel.query.get(model_id)
 
         if not m:
-            self.abort_if_ml_model_doesnt_exist(env_id, model_id)
+            self.abort_if_ml_model_doesnt_exist(model_id)
 
         return m
 
     @auth.login_required
     @marshal_with(ml_model_fields)
-    def get(self, env_id, model_id):
-        return self.get_ml_model(env_id, model_id), 200
+    def get(self, model_id):
+        return self.get_ml_model(model_id), 200
 
     @auth.login_required
     @marshal_with(ml_model_fields)
-    def put(self, env_id, model_id):
-        m = self.get_ml_model(env_id, model_id)
+    def put(self, model_id):
+        m = self.get_ml_model(model_id)
         check_request_for_logged_in_user(m.creator_id)
 
         args = parser.parse_args()
-        m.description = args['description']
+        if args['name']:
+            m.name = args['name']
+
+        if args['description']:
+            m.description = args['description']
 
         db.session.commit()
         return m, 200
 
     @auth.login_required
     @marshal_with(id_fields)
-    def delete(self, env_id, model_id):
-        m = self.get_ml_model(env_id, model_id)
+    def delete(self, model_id):
+        m = self.get_ml_model(model_id)
         check_request_for_logged_in_user(m.creator_id)
 
         db.session.delete(m)
