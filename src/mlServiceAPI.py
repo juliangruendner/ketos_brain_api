@@ -7,7 +7,7 @@ from resources.featureResource import FeatureListResource, FeatureResource, User
 from resources.featureSetResource import FeatureSetListResource, FeatureSetResource, UserFeatureSetListResource, FeatureSetFeatureListResource
 from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource, MLModelPredicitionResource
 from resources.dataResource import DataResource
-from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images
+from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images, create_default_features
 from flask_cors import CORS
 
 
@@ -19,6 +19,7 @@ connect_to_db(app)
 create_all()
 create_admin_user()
 create_default_images()
+create_default_features()
 
 CORS(app)
 
