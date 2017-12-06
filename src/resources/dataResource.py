@@ -29,11 +29,11 @@ class DataResource(Resource):
         args = parser.parse_args()
         job_id = args['jobId']
 
-        resp = requests.get('http://data_pre:5000/crawler/aggregation/' + job_id)
+        resp = requests.get('http://data_pre:5000/aggregation/' + job_id).json()
 
         print(resp)
 
-        return "test", 200
+        return resp, 200
 
     @auth.login_required
     def post(self):
