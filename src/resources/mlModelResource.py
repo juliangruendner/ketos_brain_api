@@ -2,7 +2,7 @@ from flask import g
 from flask_restful import Resource, reqparse, abort, fields, marshal_with
 from rdb.rdb import db
 from rdb.models.user import User
-from rdb.models.mlModel import MLModel
+from rdb.models.mlModel import MLModel, ml_model_fields
 from rdb.models.featureSet import FeatureSet
 from rdb.models.id import ID, id_fields
 from rdb.models.environment import Environment
@@ -18,7 +18,8 @@ ml_model_fields = {
     'creator': fields.Nested(user_fields),
     'created_at': fields.DateTime,
     'updated_at': fields.DateTime,
-    'feature_set_id': fields.Integer
+    'feature_set_id': fields.Integer,
+    'environment': fields.Nested(ml_model_fields)
 }
 
 feature_fields = {
