@@ -29,7 +29,9 @@ class DataResource(Resource):
         args = parser.parse_args()
         job_id = args['jobId']
 
-        resp = requests.get('http://data_pre:5000/crawler/aggregation/' + job_id)
+        resp = requests.get('http://data_pre:5000/aggregation/' + job_id).json()
+
+        print(resp)
 
         return resp, 200
 
@@ -47,6 +49,8 @@ class DataResource(Resource):
             feature_set.append(cur_feature)
 
         preprocess_body = {'patient_ids' : patient_ids, 'feature_set': feature_set}
+
+        print(preprocess_body)
 
         resp = requests.post('http://data_pre:5000/crawler/jobs', json = preprocess_body).json()
 

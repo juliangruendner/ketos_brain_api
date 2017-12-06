@@ -176,7 +176,9 @@ class MLModelPredicitionResource(Resource):
         patient_ids = args['patient_ids']
         feature_set_id = args['feature_set_id']
 
-        features = FeatureSet.query.get(feature_set_id).features
+
+        ml_model = get_ml_model(model_id)
+        features = ml_model.feature_set.features
         feature_set = []
 
         for feature in features:
@@ -187,7 +189,7 @@ class MLModelPredicitionResource(Resource):
 
         resp = requests.post('http:/data_pre:5000/crawler ', json = preprocess_body, params=payload).json()
 
-        data_url = {'dataUrl': resp}
+        data_url = {'dataUrl': resp.csv_url}
         resp = requests.get('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + '/execute', params = data_url).json()
 
         return resp, 200
