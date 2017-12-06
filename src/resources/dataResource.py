@@ -5,11 +5,11 @@ from rdb.models.user import User
 from resources.userResource import auth
 import requests
 from rdb.models.featureSet import FeatureSet
-
+import json
 
 feature_fields = {
     'resource': fields.String,
-    'parameter_name': fields.String,
+    'key': fields.String(attribute='parameter_name'),
     'value': fields.String,
 }
 
@@ -38,13 +38,12 @@ class DataResource(Resource):
             cur_feature = marshal(feature, feature_fields)
             feature_set.append(cur_feature)
 
-    
         preprocess_body = {'patient_ids' : patient_ids, 'feature_set': feature_set}
-        
-        #resp = requests.post('http://' + 'data_pre' + ':5000/models', data = preprocess_body).json()
-        #resp = requests.post('http://' + e.container_name + ':5000/models').json()
+        payload = {'dataUrl': 'test123Buhu'}
+
+        resp = requests.post('http://docker_api_1:5000/models/mlmodel_1/execute', json = preprocess_body, params=payload).json()
         #m.ml_model_name = str(resp['modelName'])
         # db.session.add(m)
         # db.session.commit()
 
-        return preprocess_body, 200
+        return resp, 200
