@@ -4,8 +4,10 @@ from resources.userResource import UserListResource, UserResource, UserLoginReso
 from resources.imageResource import ImageListResource, ImageResource
 from resources.environmentResource import EnvironmentListResource, EnvironmentResource, UserEnvironmentListResource
 from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource, MLModelPredicitionResource
+from resources.dataResource import DataResource
 from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images
 from flask_cors import CORS
+
 
 
 app = Flask(__name__)
@@ -31,6 +33,7 @@ api.add_resource(MLModelResource, '/models/<int:model_id>', endpoint='model')
 api.add_resource(MLModelPredicitionResource, '/models/<int:model_id>/prediction', endpoint='model_prediction')
 api.add_resource(ImageListResource, '/images', endpoint='images')
 api.add_resource(ImageResource, '/images/<int:image_id>', endpoint='image')
+api.add_resource(DataResource, '/data', endpoint='data')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
