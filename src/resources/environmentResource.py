@@ -91,8 +91,7 @@ class EnvironmentListResource(Resource):
             self.abort_if_image_doesnt_exist(args['image_id'])
 
         e.image_id = image.id
-        u = User.query.get(g.user.id)
-        e.creator_id = u.id
+        e.creator_id = g.user.id
 
         image_name = config.DOCKER_REGISTRY_DOMAIN + "/" + image.name
         e.jupyter_port = get_open_port()

@@ -17,6 +17,8 @@ class User(db.Model):
     created_images = db.relationship('Image', lazy=True, backref='creator')
     created_environments = db.relationship('Environment', lazy=True, backref='creator')
     created_ml_models = db.relationship('MLModel', lazy=True, backref='creator')
+    created_features = db.relationship('Feature', lazy=True, backref='creator')
+    created_feature_sets = db.relationship('FeatureSet', lazy=True, backref='creator')
     # accessible_evironments = db.relationship('Environment', lazy='subquery', secondary='user_environment_access')
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
