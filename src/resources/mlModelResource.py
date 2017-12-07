@@ -117,12 +117,12 @@ class MLModelResource(Resource):
     @auth.login_required
     @marshal_with(ml_model_fields)
     def get(self, model_id):
-        return get_ml_model(model_id), 200
+        return self.get_ml_model(model_id), 200
 
     @auth.login_required
     @marshal_with(ml_model_fields)
     def put(self, model_id):
-        m = get_ml_model(model_id)
+        m = self.get_ml_model(model_id)
         check_request_for_logged_in_user(m.creator_id)
 
         args = self.parser.parse_args()
@@ -142,7 +142,7 @@ class MLModelResource(Resource):
     @auth.login_required
     @marshal_with(id_fields)
     def delete(self, model_id):
-        m = get_ml_model(model_id)
+        m = self.get_ml_model(model_id)
         check_request_for_logged_in_user(m.creator_id)
 
         db.session.delete(m)
@@ -190,6 +190,6 @@ class MLModelPredicitionResource(Resource):
         resp = requests.post('http:/data_pre:5000/crawler ', json = preprocess_body, params=payload).json()
 
         data_url = {'dataUrl': resp.csv_url}
-        resp = requests.get('http://' + ml_model.environment.container_name + ':5000/models/' + model_id + '/execute', params = data_url).json()
+        resp = requests.get('http://' + ml_model.environment.container_name + ':5000/models/' + '1' + '/execute', params = data_url).json()
 
         return resp, 200
