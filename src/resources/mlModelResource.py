@@ -170,7 +170,7 @@ class MLModelPredicitionResource(Resource):
         self.parser.add_argument('dataUrl', type=str, required=True, help='no data url provided', location='args')
 
     @auth.login_required
-    def get(self, model_id):
+    def post(self, model_id):
         
         parser = reqparse.RequestParser()
         parser.add_argument('patient_ids', type= int ,action='append', required= True , help='no patientIds provided', location='json')
