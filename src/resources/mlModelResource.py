@@ -177,6 +177,8 @@ class MLModelPredicitionResource(Resource):
         args = parser.parse_args()
         patient_ids = args['patient_ids']
 
+        print("model id = " + model_id)
+        print("model is coming now")
         ml_model = get_ml_model(model_id)
 
         print(ml_model)
