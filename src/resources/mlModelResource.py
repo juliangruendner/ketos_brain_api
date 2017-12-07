@@ -1,5 +1,5 @@
 from flask import g
-from flask_restful import Resource, reqparse, abort, fields, marshal_with
+from flask_restful import Resource, reqparse, abort, fields, marshal_with, marshal
 from rdb.rdb import db
 from rdb.models.user import User
 from rdb.models.mlModel import MLModel
@@ -173,12 +173,9 @@ class MLModelPredicitionResource(Resource):
     def get(self, model_id):
         
         parser = reqparse.RequestParser()
-        parser.add_argument('patient_ids', type=int,action='append', required=True, help='no patientIds provided', location='json')
-        parser.add_argument('feature_set_id', type=int, required=True, help='No feature set id provided', location='json')
+        parser.add_argument('patient_ids', type= int ,action='append', required= True , help='no patientIds provided', location='json')
         args = parser.parse_args()
         patient_ids = args['patient_ids']
-        feature_set_id = args['feature_set_id']
-
 
         ml_model = get_ml_model(model_id)
         features = ml_model.feature_set.features
@@ -188,11 +185,11 @@ class MLModelPredicitionResource(Resource):
             cur_feature = marshal(feature, feature_fields)
             feature_set.append(cur_feature)
 
-        preprocess_body = {'patient_ids' : patient_ids, 'feature_set': feature_set}
+        preprocess_body = {'patient_ids': patient_ids, 'feature_set': feature_set}
 
         resp = requests.post('http:/data_pre:5000/crawler ', json = preprocess_body, params=payload).json()
 
         data_url = {'dataUrl': resp.csv_url}
-        resp = requests.get('http://' + m.environment.container_name + ':5000/models/' + m.ml_model_name + '/execute', params = data_url).json()
+        resp = requests.get('http://' + ml_model.environment.container_name + ':5000/models/' + model_id + '/execute', params = data_url).json()
 
         return resp, 200
