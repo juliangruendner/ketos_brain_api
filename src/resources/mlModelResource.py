@@ -192,6 +192,7 @@ class MLModelPredicitionResource(Resource):
         csv_url = csv_url.replace("localhost", "data_pre")
         data_url = {'dataUrl': csv_url}
         docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
+        print(docker_api_call)
         resp = requests.get(docker_api_call, params = data_url).json()
 
         return resp, 200
