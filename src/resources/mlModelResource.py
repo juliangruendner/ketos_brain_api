@@ -187,8 +187,7 @@ class MLModelPredicitionResource(Resource):
 
         preprocess_body = {'patient_ids': patient_ids, 'feature_set': feature_set}
         
-        resp = requests.post('http://data_pre:5000/crawler', json = preprocess_body)
-        print(resp)
+        resp = requests.post('http://data_pre:5000/crawler', json = preprocess_body).json()
         data_url = {'dataUrl': resp.csv_url}
         resp = requests.get('http://' + ml_model.environment.container_name + ':5000/models/' + '1' + '/execute', params = data_url).json()
 
