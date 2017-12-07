@@ -177,11 +177,7 @@ class MLModelPredicitionResource(Resource):
         args = parser.parse_args()
         patient_ids = args['patient_ids']
 
-        print("model id = " + str(model_id))
-        print("model is coming now")
         ml_model = get_ml_model(model_id)
-
-        print(ml_model)
         features = ml_model.feature_set.features
         feature_set = []
 
@@ -191,7 +187,7 @@ class MLModelPredicitionResource(Resource):
 
         preprocess_body = {'patient_ids': patient_ids, 'feature_set': feature_set}
 
-        resp = requests.post('http:/data_pre:5000/crawler ', json = preprocess_body).json()
+        resp = requests.post('http://data_pre:5000/crawler ', json = preprocess_body).json()
 
         data_url = {'dataUrl': resp.csv_url}
         resp = requests.get('http://' + ml_model.environment.container_name + ':5000/models/' + '1' + '/execute', params = data_url).json()
