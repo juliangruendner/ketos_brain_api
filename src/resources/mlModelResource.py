@@ -178,6 +178,8 @@ class MLModelPredicitionResource(Resource):
         patient_ids = args['patient_ids']
 
         ml_model = get_ml_model(model_id)
+
+        print(ml_model)
         features = ml_model.feature_set.features
         feature_set = []
 
