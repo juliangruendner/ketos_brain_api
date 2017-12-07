@@ -189,7 +189,7 @@ class MLModelPredicitionResource(Resource):
         
         resp = requests.post('http://data_pre:5000/crawler', json = preprocess_body).json()
         print(resp)
-        data_url = {'dataUrl': resp.csv_url}
+        data_url = {'dataUrl': resp['csv_url']}
         resp = requests.get('http://' + ml_model.environment.container_name + ':5000/models/' + '1' + '/execute', params = data_url).json()
 
         return resp, 200
