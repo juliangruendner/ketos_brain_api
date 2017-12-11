@@ -25,13 +25,16 @@ class DataResource(Resource):
     def get(self):
 
         parser = reqparse.RequestParser()
-        parser.add_argument('jobId', type=str, required=True, location='args')
+        parser.add_argument('jobId', type=str, required=False, location='args')
         args = parser.parse_args()
         job_id = args['jobId']
 
-        resp = requests.get('http://data_pre:5000/aggregation/' + job_id).json()
+        s_query = "http://data_pre:5000/crawler/jobs"
 
-        print(resp)
+        if job_id:
+            s_query = s_query + "/" + str(job_id)
+            
+        resp = requests.get(s_query).json()
 
         return resp, 200
 
