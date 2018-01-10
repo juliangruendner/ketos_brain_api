@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, Response
 from flask_restful import Resource, reqparse, abort, fields, marshal_with, marshal
 from rdb.rdb import db
 from rdb.models.user import User
@@ -14,9 +14,9 @@ feature_fields = {
 }
 
 
-class DataResource(Resource):
+class DataListResource(Resource):
     def __init__(self):
-        super(DataResource, self).__init__()
+        super(DataListResource, self).__init__()
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('patient_ids', type=int,action='append', required=True, help='no patientIds provided', location='json')
         self.parser.add_argument('feature_set_id', type=int, required=True, help='No feature set id provided', location='json')
@@ -58,3 +58,16 @@ class DataResource(Resource):
         resp = requests.post('http://data_pre:5000/crawler/jobs', json = preprocess_body).json()
 
         return resp, 200
+
+
+class DataResource(Resource):
+    def __init__(self):
+        super(DataResource, self).__init__()
+
+    @auth.login_required
+    def get(self, datarequest_id):
+
+        s_query = "http://data_pre:5000/aggregation/" + str(datarequest_id) + "?output_type=csv&aggregation_type=latest"
+        result = requests.get(s_query)
+        return Response(result, mimetype='text/csv')
+

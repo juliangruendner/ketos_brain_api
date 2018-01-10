@@ -6,7 +6,7 @@ from resources.environmentResource import EnvironmentListResource, EnvironmentRe
 from resources.featureResource import FeatureListResource, FeatureResource, UserFeatureListResource
 from resources.featureSetResource import FeatureSetListResource, FeatureSetResource, UserFeatureSetListResource, FeatureSetFeatureListResource
 from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource, MLModelPredicitionResource
-from resources.dataResource import DataResource
+from resources.dataResource import DataListResource, DataResource
 from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images, create_default_features
 from flask_cors import CORS
 
@@ -37,7 +37,8 @@ api.add_resource(MLModelResource, '/models/<int:model_id>', endpoint='model')
 api.add_resource(MLModelPredicitionResource, '/models/<int:model_id>/prediction', endpoint='model_prediction')
 api.add_resource(ImageListResource, '/images', endpoint='images')
 api.add_resource(ImageResource, '/images/<int:image_id>', endpoint='image')
-api.add_resource(DataResource, '/data', endpoint='data')
+api.add_resource(DataListResource, '/data', endpoint='datalist')
+api.add_resource(DataResource, '/data/<datarequest_id>', endpoint='data')
 api.add_resource(FeatureListResource, '/features', endpoint='features')
 api.add_resource(FeatureResource, '/features/<int:feature_id>', endpoint='feature')
 api.add_resource(FeatureSetListResource, '/featuresets', endpoint='feature_sets')
