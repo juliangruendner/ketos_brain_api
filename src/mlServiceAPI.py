@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Api
+from flask_restful_swagger_2 import Api
 from resources.userResource import UserListResource, UserResource, UserLoginResource
 from resources.imageResource import ImageListResource, ImageResource
 from resources.environmentResource import EnvironmentListResource, EnvironmentResource, UserEnvironmentListResource
@@ -13,7 +13,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-api = Api(app)
+api = Api(app, add_api_spec_resource=True, api_version='0.0', api_spec_url='/api/swagger') # Wrap the Api and add /api/swagger endpoint
 
 connect_to_db(app)
 create_all()
