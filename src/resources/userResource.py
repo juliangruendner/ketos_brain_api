@@ -117,7 +117,7 @@ class UserResource(Resource):
 
         id = ID()
         id.id = user_id
-        return id, 204
+        return id, 200
 
     @auth.login_required
     @marshal_with(user_fields)
