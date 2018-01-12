@@ -105,6 +105,7 @@ class UserResource(Resource):
         return self.get_user(user_id), 200
 
     @auth.login_required
+    @marshal_with(id_fields)
     def delete(self, user_id):
         check_request_for_logged_in_user(user_id)
 
@@ -118,7 +119,7 @@ class UserResource(Resource):
         return id, 204
 
     @auth.login_required
-    @marshal_with(id_fields)
+    @marshal_with(user_fields)
     def put(self, user_id):
         check_request_for_logged_in_user(user_id)
 
