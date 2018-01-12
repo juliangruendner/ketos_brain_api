@@ -1,5 +1,6 @@
 from flask import g
-from flask_restful import Resource, reqparse, abort, fields, marshal_with
+from flask_restful import reqparse, abort, fields, marshal_with
+from flask_restful_swagger_2 import swagger, Resource
 from rdb.rdb import db
 from rdb.models.featureSet import FeatureSet
 from resources.featureResource import feature_fields

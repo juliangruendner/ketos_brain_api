@@ -1,5 +1,6 @@
 from flask import g
-from flask_restful import Resource, reqparse, abort, fields, marshal_with
+from flask_restful import reqparse, abort, fields, marshal_with
+from flask_restful_swagger_2 import swagger, Resource
 from rdb.models.user import User, get_user_by_username
 from rdb.models.id import ID, id_fields
 from rdb.rdb import db
