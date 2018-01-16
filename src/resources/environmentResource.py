@@ -98,7 +98,14 @@ class EnvironmentListResource(Resource):
         e.jupyter_port = get_open_port()
 
         e.container_name = str(uuid.uuid4().hex)
-        container = dockerClient.containers.run(image_name, name=e.container_name, detach=True, network=config.PROJECT_NAME+"_environment", ports={"8000/tcp": e.jupyter_port})
+
+        container = dockerClient.containers.run(image_name,
+                                                name=e.container_name,
+                                                detach=True,
+                                                network=config.PROJECT_NAME+"_environment",
+                                                ports={"8000/tcp": e.jupyter_port},
+                                                volumes={'/tmp/ketos/environments_data/'+e.container_name: {'bind': '/mlenvironment/models', 'mode': 'rw'}})
+
         e.container_id = container.id
         start_jupyter(e)
 

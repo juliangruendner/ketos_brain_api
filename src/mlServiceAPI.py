@@ -1,5 +1,4 @@
 import logging.config
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 from flask import Flask
 from flask_restful_swagger_2 import Api
 from resources.userResource import UserListResource, UserResource, UserLoginResource
@@ -13,9 +12,11 @@ from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default
 from flask_cors import CORS
 
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-api = Api(app, add_api_spec_resource=True, api_version='0.0', api_spec_url='/api/swagger') # Wrap the Api and add /api/swagger endpoint
+api = Api(app, add_api_spec_resource=True, api_version='0.0', api_spec_url='/api/swagger')  # Wrap the Api and add /api/swagger endpoint
 
 connect_to_db(app)
 create_all()
