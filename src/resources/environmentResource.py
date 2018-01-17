@@ -104,7 +104,7 @@ class EnvironmentListResource(Resource):
                                                 detach=True,
                                                 network=config.PROJECT_NAME+"_environment",
                                                 ports={"8000/tcp": e.jupyter_port},
-                                                volumes={'/tmp/ketos/environments_data/'+e.container_name: {'bind': '/mlenvironment/models', 'mode': 'rw'}})
+                                                volumes={'/ketos/environments_data/'+e.container_name: {'bind': '/mlenvironment/models', 'mode': 'rw'}})
 
         e.container_id = container.id
         start_jupyter(e)
