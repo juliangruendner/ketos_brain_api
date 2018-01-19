@@ -64,7 +64,7 @@ class MLModelListResource(Resource):
         super(MLModelListResource, self).__init__()
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('environment_id', type=int, required=True, help='No environment id provided', location='json')
-        self.parser.add_argument('name', type=str, required=True, help='No model name provided', location='json')
+        self.parser.add_argument('name', type=str, required=False, help='No model name provided', location='json')
         self.parser.add_argument('description', type=str, required=False, location='json')
         self.parser.add_argument('feature_set_id', type=int, required=False, location='json')
 
