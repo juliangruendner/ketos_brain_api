@@ -1,17 +1,15 @@
-from flask import g, make_response, send_from_directory
+from flask import send_from_directory, request
 from flask_restful import reqparse, abort, fields, marshal_with, marshal
 from flask_restful_swagger_2 import swagger, Resource
 from rdb.rdb import db
-from rdb.models.user import User
 from rdb.models.mlModel import MLModel
 from rdb.models.featureSet import FeatureSet
 from rdb.models.id import ID, id_fields
-from rdb.models.environment import Environment
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
 from resources.environmentResource import environment_fields
 from resources.featureSetResource import feature_set_fields
 import requests
-from modelPackaging import modelPackaging
+from util import mlModelUtil, modelPackagingUtil
 
 ml_model_fields = {
     'id': fields.Integer,
@@ -38,10 +36,6 @@ def abort_if_ml_model_doesnt_exist(model_id):
     abort(404, message="model {} for environment {} doesn't exist".format(model_id))
 
 
-def abort_if_feature_set_doesnt_exist(feature_set_id):
-    abort(404, message="feature set {} doesn't exist".format(feature_set_id))
-
-
 def get_ml_model(model_id):
     m = MLModel.query.get(model_id)
 
@@ -55,7 +49,7 @@ def get_feature_set(feature_set_id):
     fs = FeatureSet.query.get(feature_set_id)
 
     if not fs:
-        abort_if_feature_set_doesnt_exist(feature_set_id)
+        mlModelUtil.abort_if_feature_set_doesnt_exist(feature_set_id)
 
     return fs
 
@@ -81,26 +75,8 @@ class MLModelListResource(Resource):
     @marshal_with(ml_model_fields)
     def post(self):
         args = self.parser.parse_args()
-        e = Environment.query.get(args['environment_id'])
 
-        if not e:
-            self.abort_if_environment_doesnt_exist(args['environment_id'])
-
-        m = MLModel()
-        m.environment_id = e.id
-        m.name = args['name']
-        m.description = args['description']
-        m.creator_id = User.query.get(g.user.id).id
-
-        resp = requests.post('http://' + e.container_name + ':5000/models').json()
-        m.ml_model_name = str(resp['modelName'])
-
-        if args['feature_set_id']:
-            fs = get_feature_set(args['feature_set_id'])
-            m.feature_set_id = fs.id
-
-        db.session.add(m)
-        db.session.commit()
+        m = mlModelUtil.create_ml_model(name=args['name'], desc=args['description'], env_id=args['environment_id'], feature_set_id=args['feature_set_id'])
 
         return m, 201
 
@@ -173,16 +149,40 @@ class MLModelPackageResource(Resource):
     def post(self, model_id):
         m = get_ml_model(model_id)
 
-        modelPackaging.package_model(m)
+        modelPackagingUtil.package_model(m)
 
         return {'done': True}, 201
 
     @auth.login_required
     def get(self, model_id):
         m = get_ml_model(model_id)
-        response = send_from_directory(modelPackaging.get_packaging_path(m), m.ml_model_name + '.zip', as_attachment=True)
+        response = send_from_directory(modelPackagingUtil.get_packaging_path(m), m.ml_model_name + '.zip', as_attachment=True)
         response.headers['content-type'] = 'application/octet-stream'
         return response
+
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = set(['zip'])
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+class MLModelLoadResource(Resource):
+    def __init__(self):
+        super(MLModelLoadResource, self).__init__()
+
+    @auth.login_required
+    def post(self):
+        if 'file' not in request.files:
+            abort(400, message="File part is empty")
+        f = request.files['file']
+        if f.filename == '':
+            abort(400, message="No file selected")
+        if not allowed_file(f.filename):
+            abort(400, message="File not allowed")
+
+        modelPackagingUtil.load_model(f)
+
+        return {'done': True}, 201
 
 
 class MLModelPredicitionResource(Resource):

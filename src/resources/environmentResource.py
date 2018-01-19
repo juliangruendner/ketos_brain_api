@@ -1,17 +1,11 @@
-from flask import g
 from flask_restful import reqparse, abort, fields, marshal_with
 from flask_restful_swagger_2 import swagger, Resource
 from rdb.rdb import db
 from rdb.models.environment import Environment
-from rdb.models.user import User
-from rdb.models.image import Image
 from rdb.models.id import ID, id_fields
-from dockerUtil.dockerClient import dockerClient, wait_for_it
+from dockerUtil.dockerClient import dockerClient
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
-from resources.adminAccess import is_admin_user
-import config
-import requests
-import uuid
+from util import environmentUtil
 
 environment_fields = {
     'id': fields.Integer,
@@ -28,32 +22,6 @@ environment_fields = {
     'created_at': fields.DateTime,
     'updated_at': fields.DateTime
 }
-
-
-def get_open_port():
-    import socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(("", 0))
-    s.listen(1)
-    port = s.getsockname()[1]
-    s.close()
-    return port
-
-
-def handle_jupyter_data(e):
-        if is_admin_user() or g.user.id == e.creator_id:
-            e.set_jupyter_url()
-        else:
-            e.hide_jupyter_data()
-
-
-def start_jupyter(e):
-    # wait for container api to be up and running
-    wait_for_it(e.container_name, 5000)
-    # start jupyter notebook and get jupyter token
-    resp = requests.post('http://' + e.container_name + ':5000/jupyter').json()
-    e.jupyter_token = str(resp['jupyter_token'])
-    e.status = Environment.Status.running.value
 
 
 class EnvironmentListResource(Resource):
@@ -74,7 +42,7 @@ class EnvironmentListResource(Resource):
         envs = Environment.query.all()
 
         for e in envs:
-            handle_jupyter_data(e)
+            environmentUtil.handle_jupyter_data(e)
 
         return envs, 200
 
@@ -83,36 +51,7 @@ class EnvironmentListResource(Resource):
     def post(self):
         args = self.parser.parse_args()
 
-        e = Environment()
-        e.name = args['name']
-        e.description = args['description']
-
-        image = Image.query.get(args['image_id'])
-        if not image:
-            self.abort_if_image_doesnt_exist(args['image_id'])
-
-        e.image_id = image.id
-        e.creator_id = g.user.id
-
-        image_name = config.DOCKER_REGISTRY_DOMAIN + "/" + image.name
-        e.jupyter_port = get_open_port()
-
-        e.container_name = str(uuid.uuid4().hex)
-
-        container = dockerClient.containers.run(image_name,
-                                                name=e.container_name,
-                                                detach=True,
-                                                network=config.PROJECT_NAME+"_environment",
-                                                ports={"8000/tcp": e.jupyter_port},
-                                                volumes={'/ketos/environments_data/'+e.container_name: {'bind': '/mlenvironment/models', 'mode': 'rw'}})
-
-        e.container_id = container.id
-        start_jupyter(e)
-
-        db.session.add(e)
-        db.session.commit()
-
-        e.set_jupyter_url()
+        e = environmentUtil.create_environment(name=args['name'], desc=args['description'], image_id=args['image_id'])
 
         return e, 201
 
@@ -135,7 +74,7 @@ class EnvironmentResource(Resource):
         if not e:
             self.abort_if_environment_doesnt_exist(env_id)
 
-        handle_jupyter_data(e)
+        environmentUtil.handle_jupyter_data(e)
 
         return e
 
@@ -156,7 +95,7 @@ class EnvironmentResource(Resource):
         if status_new and not e.status == status_new:
             if status_new == Environment.Status.running.value:
                 dockerClient.containers.get(e.container_id).start()
-                start_jupyter(e)
+                environmentUtil.start_jupyter(e)
             elif status_new == Environment.Status.stopped.value:
                 dockerClient.containers.get(e.container_id).stop()
             else:
@@ -204,6 +143,6 @@ class UserEnvironmentListResource(Resource):
         envs = Environment.query.filter_by(creator_id=user_id).all()
 
         for e in envs:
-            handle_jupyter_data(e)
+            environmentUtil.handle_jupyter_data(e)
 
         return envs, 200

@@ -11,7 +11,7 @@ class MLModel(db.Model):
     environment_id = db.Column(db.Integer, db.ForeignKey('environment.id'), nullable=False)
     ml_model_name = db.Column(db.Text, nullable=False)
     name = db.Column(LowerCaseText, nullable=False)
-    desription = db.Column(db.Text, nullable=True)
+    description = db.Column(db.Text, nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
