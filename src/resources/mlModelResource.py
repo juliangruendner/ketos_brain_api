@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, make_response, send_from_directory
 from flask_restful import reqparse, abort, fields, marshal_with, marshal
 from flask_restful_swagger_2 import swagger, Resource
 from rdb.rdb import db
@@ -11,7 +11,7 @@ from resources.userResource import auth, user_fields, check_request_for_logged_i
 from resources.environmentResource import environment_fields
 from resources.featureSetResource import feature_set_fields
 import requests
-from modelPackaging.modelPackaging import package_model
+from modelPackaging import modelPackaging
 
 ml_model_fields = {
     'id': fields.Integer,
@@ -173,9 +173,16 @@ class MLModelPackageResource(Resource):
     def post(self, model_id):
         m = get_ml_model(model_id)
 
-        package_model(m)
+        modelPackaging.package_model(m)
 
         return {'done': True}, 201
+
+    @auth.login_required
+    def get(self, model_id):
+        m = get_ml_model(model_id)
+        response = send_from_directory(modelPackaging.get_packaging_path(m), m.ml_model_name + '.zip', as_attachment=True)
+        response.headers['content-type'] = 'application/octet-stream'
+        return response
 
 
 class MLModelPredicitionResource(Resource):

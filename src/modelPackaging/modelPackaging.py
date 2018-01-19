@@ -3,6 +3,8 @@ import json
 import decimal
 import datetime
 
+PACKAGING_PATH_PREFIX = '/ketos/environments_data/packaging/'
+
 
 def alchemyencoder(obj):
     """JSON encoder function for SQLAlchemy special classes."""
@@ -12,9 +14,13 @@ def alchemyencoder(obj):
         return float(obj)
 
 
+def get_packaging_path(model):
+    return PACKAGING_PATH_PREFIX + model.environment.container_name
+
+
 def package_model(model):
     # build relevant paths
-    packaging_path = '/ketos/environments_data/packaging/' + model.environment.container_name
+    packaging_path = get_packaging_path(model)
     packaging_path_tmp = packaging_path + '/' + model.ml_model_name
     root_dir = '/ketos/environments_data/' + model.environment.container_name + '/' + model.ml_model_name
 
