@@ -11,6 +11,7 @@ from resources.userResource import auth, user_fields, check_request_for_logged_i
 from resources.environmentResource import environment_fields
 from resources.featureSetResource import feature_set_fields
 import requests
+from modelPackaging.modelPackaging import package_model
 
 ml_model_fields = {
     'id': fields.Integer,
@@ -162,6 +163,19 @@ class UserMLModelListResource(Resource):
     @marshal_with(ml_model_fields)
     def get(self, user_id):
         return MLModel.query.filter_by(creator_id=user_id).all(), 200
+
+
+class MLModelPackageResource(Resource):
+    def __init__(self):
+        super(MLModelPackageResource, self).__init__()
+
+    @auth.login_required
+    def post(self, model_id):
+        m = get_ml_model(model_id)
+
+        package_model(m)
+
+        return {'done': True}, 201
 
 
 class MLModelPredicitionResource(Resource):
