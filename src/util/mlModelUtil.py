@@ -45,5 +45,5 @@ def create_ml_model(name, desc, env_id, feature_set_id, abort=True):
 
     db.session.add(m)
     db.session.commit()
-    
+
     return m

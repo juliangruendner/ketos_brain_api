@@ -1,4 +1,3 @@
-from flask import g
 from flask_restful import reqparse, abort, fields, marshal_with
 from flask_restful_swagger_2 import swagger, Resource
 from rdb.rdb import db
@@ -7,6 +6,7 @@ from resources.featureResource import feature_fields
 from rdb.models.feature import Feature
 from rdb.models.id import ID, id_fields
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
+from util import featureSetUtil
 
 feature_set_fields = {
     'id': fields.Integer,
@@ -45,13 +45,7 @@ class FeatureSetListResource(Resource):
     def post(self):
         args = self.parser.parse_args()
 
-        fs = FeatureSet()
-        fs.name = args['name']
-        fs.description = args['description']
-        fs.creator_id = g.user.id
-
-        db.session.add(fs)
-        db.session.commit()
+        fs = featureSetUtil.create_feature_set(name=args['name'], desc=args['description'])
         return fs, 201
 
 
