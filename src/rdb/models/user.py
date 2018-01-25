@@ -1,6 +1,7 @@
 from passlib.apps import custom_app_context as pwd_context
 from rdb.rdb import db, LowerCaseText
 import datetime
+from flask_restful import abort
 
 
 class User(db.Model):
@@ -43,7 +44,7 @@ class User(db.Model):
         return pwd_context.verify(password, self.password_hash)
 
 
-def get_user_by_username(username):
+def get_by_username(username, raise_abort=True):
     # is username the real username or the email
     # username: not @ contained
     # email: @ contained
@@ -53,5 +54,39 @@ def get_user_by_username(username):
         u = User.query.filter_by(email=username.lower()).first()
     else:
         u = User.query.filter_by(username=username.lower()).first()
+
+    if raise_abort and not u:
+        abort_if_user_doesnt_exist(username)
+
+    return u
+
+
+def abort_if_user_doesnt_exist(user_id):
+        abort(404, message="user {} doesn't exist".format(user_id))
+
+
+def get_user(user_id, raise_abort=True):
+    u = User.query.get(user_id)
+
+    if raise_abort and not u:
+        abort_if_user_doesnt_exist(user_id)
+
+    return u
+
+
+def get_all():
+    return User.query.all()
+
+
+def create(username, email, password, first_name=None, last_name=None):
+    u = User()
+    u.username = username
+    u.email = email
+    u.hash_password(password)
+    u.first_name = first_name
+    u.last_name = last_name
+
+    db.session.add(u)
+    db.session.commit()
 
     return u

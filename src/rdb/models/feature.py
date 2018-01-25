@@ -1,5 +1,7 @@
 from rdb.rdb import db
 import datetime
+from flask import g
+from flask_restful import abort
 
 
 class Feature(db.Model):
@@ -30,3 +32,42 @@ class Feature(db.Model):
         """Convert object to dictionary"""
 
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+def create(resource, parameter_name, value, name, desc, creator_id=None):
+    f = Feature()
+    f.resource = resource
+    f.parameter_name = parameter_name
+    f.value = value
+    f.name = name
+    f.description = desc
+
+    if not creator_id:
+        f.creator_id = g.user.id
+    else:
+        f.creator_id = creator_id
+
+    db.session.add(f)
+    db.session.commit()
+    return f
+
+
+def abort_if_feature_doesnt_exist(feature_id):
+        abort(404, message="feature {} doesn't exist".format(feature_id))
+
+
+def get(feature_id, raise_abort=True):
+    f = Feature.query.get(feature_id)
+
+    if raise_abort and not f:
+        abort_if_feature_doesnt_exist(feature_id)
+
+    return f
+
+
+def get_all():
+    return Feature.query.all()
+
+
+def get_all_for_user(user_id):
+    return Feature.query.filter_by(creator_id=user_id).all()

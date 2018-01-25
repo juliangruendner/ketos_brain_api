@@ -2,11 +2,13 @@ from shutil import make_archive, copytree, rmtree, unpack_archive, move
 import json
 import decimal
 import datetime
-from util import environmentUtil, mlModelUtil, featureUtil, featureSetUtil
 import uuid
 import os
-from rdb.models.image import Image
-from flask_restful import abort
+import rdb.models.image as Image
+import rdb.models.mlModel as MLModel
+import rdb.models.feature as Feature
+import rdb.models.featureSet as FeatureSet
+import rdb.models.environment as Environment
 from rdb.rdb import db
 
 
@@ -31,7 +33,7 @@ def package_model(model):
     packaging_path = get_packaging_path(model)
     packaging_path_tmp = packaging_path + '/' + model.ml_model_name
     metadata_path = packaging_path_tmp + METADATA_DIR
-    root_dir = environmentUtil.get_data_directory(model.environment) + '/' + model.ml_model_name
+    root_dir = model.environment.get_data_directory() + '/' + model.ml_model_name
 
     # initial cleanup
     if os.path.isdir(packaging_path_tmp):
@@ -88,11 +90,7 @@ def package_model(model):
     rmtree(packaging_path_tmp)
 
 
-def abort_if_image_doesnt_exist(self, image_name):
-    abort(404, message="image {} doesn't exist".format(image_name))
-
-
-def load_model(file, abort=True):
+def load_model(file, raise_abort=True):
     # generate temporary path to save file to
     tmp_uuid = str(uuid.uuid4().hex)
     tmp_path = '/tmp/' + tmp_uuid
@@ -109,21 +107,19 @@ def load_model(file, abort=True):
     create_image = None
     with open(tmp_path + METADATA_DIR + '/image.json', 'r') as infile:
         i = json.load(infile)
-        create_image = Image.query.filter_by(name=i['name']).first()
-        if abort and not create_image:
-            abort_if_image_doesnt_exist(i['name'])
+        create_image = Image.get_by_name(image_name=i['name'])
 
     # create and start the new environment
     env_created = None
     with open(tmp_path + METADATA_DIR + '/environment.json', 'r') as infile:
         e = json.load(infile)
-        env_created = environmentUtil.create_environment(name=e['name'], desc=e['description'], image_id=create_image.id)
+        env_created = Environment.create(name=e['name'], desc=e['description'], image_id=create_image.id)
 
     # create the model which is to be loaded
     model_created = None
     with open(tmp_path + METADATA_DIR + '/model.json', 'r') as infile:
         m = json.load(infile)
-        model_created = mlModelUtil.create_ml_model(name=m['name'], desc=m['description'], env_id=env_created.id, feature_set_id=None)
+        model_created = MLModel.create(name=m['name'], desc=m['description'], env_id=env_created.id, create_example_model=False, feature_set_id=None)
 
     if os.path.isfile(tmp_path + METADATA_DIR + '/features.json') and os.path.isfile(tmp_path + METADATA_DIR + '/feature_set.json'):
         # create the features
@@ -131,20 +127,20 @@ def load_model(file, abort=True):
         with open(tmp_path + METADATA_DIR + '/features.json', 'r') as infile:
             fs = json.load(infile)
             for f in fs:
-                feature = featureUtil.create_feature(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'], name=f['name'], desc=f['description'])
+                feature = Feature.create(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'], name=f['name'], desc=f['description'])
                 features_created.append(feature)
 
         # create the feature set with the features and model assigned
         with open(tmp_path + METADATA_DIR + '/feature_set.json', 'r') as infile:
             fs = json.load(infile)
-            feature_set_created = featureSetUtil.create_feature_set(name=fs['name'], desc=fs['description'])
+            feature_set_created = FeatureSet.create(name=fs['name'], desc=fs['description'])
             feature_set_created.features = features_created
             feature_set_created.ml_models.append(model_created)
             db.session.commit()
 
     # remove temporarily created directory and files
-    rmtree(environmentUtil.get_data_directory(env_created) + '/' + model_created.ml_model_name)
-    os.makedirs(environmentUtil.get_data_directory(env_created) + '/' + model_created.ml_model_name, mode=0o777)
+    rmtree(env_created.get_data_directory() + '/' + model_created.ml_model_name)
+    os.makedirs(env_created.get_data_directory() + '/' + model_created.ml_model_name, mode=0o777)
     for filename in os.listdir(tmp_path):
-        move(tmp_path + '/' + filename, environmentUtil.get_data_directory(env_created) + '/' + model_created.ml_model_name)
-    rmtree(environmentUtil.get_data_directory(env_created) + '/' + model_created.ml_model_name + METADATA_DIR)
+        move(tmp_path + '/' + filename, env_created.get_data_directory() + '/' + model_created.ml_model_name)
+    rmtree(env_created.get_data_directory() + '/' + model_created.ml_model_name + METADATA_DIR)

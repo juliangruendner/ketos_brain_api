@@ -1,5 +1,7 @@
 from rdb.rdb import db, LowerCaseText
 import datetime
+from flask_restful import abort
+from flask import g
 
 
 class Image(db.Model):
@@ -28,3 +30,45 @@ class Image(db.Model):
         """Convert object to dictionary"""
 
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+def abort_if_image_doesnt_exist(self, image_id):
+    abort(404, message="image {} doesn't exist".format(image_id))
+
+
+def get(image_id, raise_abort=True):
+    i = Image.query.get(image_id)
+
+    if raise_abort and not i:
+        abort_if_image_doesnt_exist(image_id)
+
+    return i
+
+
+def get_by_name(image_name, raise_abort=True):
+    image = Image.query.filter_by(name=image_name).first()
+
+    if raise_abort and not image:
+        abort_if_image_doesnt_exist(image_name)
+
+    return image
+
+
+def get_all():
+    return Image.query.all()
+
+
+def create(name, desc, title, creator_id=None):
+    i = Image()
+    i.name = name
+    i.description = desc
+    i.title = title
+    if not creator_id:
+        i.creator_id = g.user.id
+    else:
+        i.creator_id = creator_id
+
+    db.session.add(i)
+    db.session.commit()
+
+    return i

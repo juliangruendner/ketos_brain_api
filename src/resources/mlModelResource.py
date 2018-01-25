@@ -2,14 +2,15 @@ from flask import send_from_directory, request
 from flask_restful import reqparse, abort, fields, marshal_with, marshal
 from flask_restful_swagger_2 import swagger, Resource
 from rdb.rdb import db
-from rdb.models.mlModel import MLModel
-from rdb.models.featureSet import FeatureSet
+import rdb.models.mlModel as MLModel
+import rdb.models.featureSet as FeatureSet
 from rdb.models.id import ID, id_fields
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
 from resources.environmentResource import environment_fields
 from resources.featureSetResource import feature_set_fields
 import requests
-from util import mlModelUtil, modelPackagingUtil
+from util import modelPackagingUtil
+from flask_restplus import inputs
 
 ml_model_fields = {
     'id': fields.Integer,
@@ -32,28 +33,6 @@ feature_fields = {
 }
 
 
-def abort_if_ml_model_doesnt_exist(model_id):
-    abort(404, message="model {} for environment {} doesn't exist".format(model_id))
-
-
-def get_ml_model(model_id):
-    m = MLModel.query.get(model_id)
-
-    if not m:
-        abort_if_ml_model_doesnt_exist(model_id)
-
-    return m
-
-
-def get_feature_set(feature_set_id):
-    fs = FeatureSet.query.get(feature_set_id)
-
-    if not fs:
-        mlModelUtil.abort_if_feature_set_doesnt_exist(feature_set_id)
-
-    return fs
-
-
 class MLModelListResource(Resource):
     def __init__(self):
         super(MLModelListResource, self).__init__()
@@ -62,6 +41,7 @@ class MLModelListResource(Resource):
         self.parser.add_argument('name', type=str, required=False, help='No model name provided', location='json')
         self.parser.add_argument('description', type=str, required=False, location='json')
         self.parser.add_argument('feature_set_id', type=int, required=False, location='json')
+        self.parser.add_argument('create_example_model', type=inputs.boolean, default=True, required=False, location='args')
 
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
@@ -69,14 +49,14 @@ class MLModelListResource(Resource):
     @auth.login_required
     @marshal_with(ml_model_fields)
     def get(self):
-        return MLModel.query.all(), 200
+        return MLModel.get_all(), 200
 
     @auth.login_required
     @marshal_with(ml_model_fields)
     def post(self):
         args = self.parser.parse_args()
 
-        m = mlModelUtil.create_ml_model(name=args['name'], desc=args['description'], env_id=args['environment_id'], feature_set_id=args['feature_set_id'])
+        m = MLModel.create(name=args['name'], desc=args['description'], env_id=args['environment_id'], create_example_model=args['create_example_model'], feature_set_id=args['feature_set_id'])
 
         return m, 201
 
@@ -95,12 +75,12 @@ class MLModelResource(Resource):
     @auth.login_required
     @marshal_with(ml_model_fields)
     def get(self, model_id):
-        return get_ml_model(model_id), 200
+        return MLModel.get(model_id), 200
 
     @auth.login_required
     @marshal_with(ml_model_fields)
     def put(self, model_id):
-        m = get_ml_model(model_id)
+        m = MLModel.get(model_id)
         check_request_for_logged_in_user(m.creator_id)
 
         args = self.parser.parse_args()
@@ -111,7 +91,7 @@ class MLModelResource(Resource):
             m.description = args['description']
 
         if args['feature_set_id']:
-            fs = get_feature_set(args['feature_set_id'])
+            fs = FeatureSet.get(args['feature_set_id'])
             m.feature_set_id = fs.id
 
         db.session.commit()
@@ -120,7 +100,7 @@ class MLModelResource(Resource):
     @auth.login_required
     @marshal_with(id_fields)
     def delete(self, model_id):
-        m = get_ml_model(model_id)
+        m = MLModel.get(model_id)
         check_request_for_logged_in_user(m.creator_id)
 
         db.session.delete(m)
@@ -138,7 +118,7 @@ class UserMLModelListResource(Resource):
     @auth.login_required
     @marshal_with(ml_model_fields)
     def get(self, user_id):
-        return MLModel.query.filter_by(creator_id=user_id).all(), 200
+        return MLModel.get_all_for_user(user_id), 200
 
 
 class MLModelPackageResource(Resource):
@@ -147,7 +127,7 @@ class MLModelPackageResource(Resource):
 
     @auth.login_required
     def post(self, model_id):
-        m = get_ml_model(model_id)
+        m = MLModel.get(model_id)
 
         modelPackagingUtil.package_model(m)
 
@@ -155,7 +135,7 @@ class MLModelPackageResource(Resource):
 
     @auth.login_required
     def get(self, model_id):
-        m = get_ml_model(model_id)
+        m = MLModel.get(model_id)
         response = send_from_directory(modelPackagingUtil.get_packaging_path(m), m.ml_model_name + '.zip', as_attachment=True)
         response.headers['content-type'] = 'application/octet-stream'
         return response
@@ -199,7 +179,7 @@ class MLModelPredicitionResource(Resource):
         args = parser.parse_args()
         patient_ids = args['patient_ids']
 
-        ml_model = get_ml_model(model_id)
+        ml_model = MLModel.get(model_id)
         features = ml_model.feature_set.features
         feature_set = []
 

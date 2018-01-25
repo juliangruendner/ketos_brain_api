@@ -1,5 +1,10 @@
 from rdb.rdb import db, LowerCaseText
 import datetime
+from flask import g
+import rdb.models.environment as Environment
+import requests
+from rdb.models.featureSet import FeatureSet
+from flask_restful import abort
 
 
 class MLModel(db.Model):
@@ -29,3 +34,51 @@ class MLModel(db.Model):
         """Convert object to dictionary"""
 
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+def create(name, desc, env_id, feature_set_id, create_example_model=False, raise_abort=True):
+    e = Environment.get(env_id, raise_abort=raise_abort)
+
+    m = MLModel()
+
+    if feature_set_id:
+        fs = FeatureSet.get(feature_set_id, raise_abort=raise_abort)
+        m.feature_set_id = fs.id
+
+    m.environment_id = e.id
+    m.name = name
+    m.description = desc
+    m.creator_id = g.user.id
+    
+    params = None
+    if create_example_model:
+        params = {'createExampleModel': create_example_model}
+    print(create_example_model)
+    resp = requests.post('http://' + e.container_name + ':5000/models', params=params).json()
+    m.ml_model_name = str(resp['modelName'])
+
+    db.session.add(m)
+    db.session.commit()
+
+    return m
+
+
+def abort_if_model_doesnt_exist(model_id):
+        abort(404, message="model {} doesn't exist".format(model_id))
+
+
+def get(model_id, raise_abort=True):
+    m = MLModel.query.get(model_id)
+
+    if raise_abort and not m:
+        abort_if_model_doesnt_exist(model_id)
+
+    return m
+
+
+def get_all():
+    return MLModel.query.all()
+
+
+def get_all_for_user(user_id):
+    return MLModel.query.filter_by(creator_id=user_id).all()

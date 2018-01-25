@@ -1,12 +1,10 @@
-from flask_restful import reqparse, abort, fields, marshal_with
+from flask_restful import reqparse, fields, marshal_with
 from flask_restful_swagger_2 import swagger, Resource
 from rdb.rdb import db
-from rdb.models.featureSet import FeatureSet
+import rdb.models.featureSet as FeatureSet
 from resources.featureResource import feature_fields
-from rdb.models.feature import Feature
 from rdb.models.id import ID, id_fields
 from resources.userResource import auth, user_fields, check_request_for_logged_in_user
-from util import featureSetUtil
 
 feature_set_fields = {
     'id': fields.Integer,
@@ -38,28 +36,16 @@ class FeatureSetListResource(Resource):
     @auth.login_required
     @marshal_with(feature_set_fields)
     def get(self):
-        return FeatureSet.query.all(), 200
+        return FeatureSet.get_all(), 200
 
     @auth.login_required
     @marshal_with(feature_set_fields)
     def post(self):
         args = self.parser.parse_args()
 
-        fs = featureSetUtil.create_feature_set(name=args['name'], desc=args['description'])
+        fs = FeatureSet.create(name=args['name'], desc=args['description'])
+
         return fs, 201
-
-
-def abort_if_feature_set_doesnt_exist(feature_set_id):
-    abort(404, message="feature set {} doesn't exist".format(feature_set_id))
-
-
-def get_feature_set(feature_set_id):
-    fs = FeatureSet.query.get(feature_set_id)
-
-    if not fs:
-        abort_if_feature_set_doesnt_exist(feature_set_id)
-
-    return fs
 
 
 class FeatureSetResource(Resource):
@@ -72,12 +58,12 @@ class FeatureSetResource(Resource):
     @auth.login_required
     @marshal_with(feature_set_fields)
     def get(self, feature_set_id):
-        return self.get_feature_set(feature_set_id), 200
+        return FeatureSet.get(feature_set_id), 200
 
     @auth.login_required
     @marshal_with(feature_set_fields)
     def put(self, feature_set_id):
-        fs = get_feature_set(feature_set_id)
+        fs = FeatureSet.get(feature_set_id)
 
         check_request_for_logged_in_user(fs.creator_id)
 
@@ -94,7 +80,7 @@ class FeatureSetResource(Resource):
     @auth.login_required
     @marshal_with(id_fields)
     def delete(self, feature_set_id):
-        fs = get_feature_set(feature_set_id)
+        fs = FeatureSet.get(feature_set_id)
 
         check_request_for_logged_in_user(fs.creator_id)
 
@@ -116,8 +102,7 @@ class UserFeatureSetListResource(Resource):
     @auth.login_required
     @marshal_with(feature_set_fields)
     def get(self, user_id):
-        feature_sets = FeatureSet.query.filter_by(creator_id=user_id).all()
-        return feature_sets, 200
+        return FeatureSet.get_all_for_user(user_id), 200
 
 
 class FeatureSetFeatureListResource(Resource):
@@ -129,32 +114,24 @@ class FeatureSetFeatureListResource(Resource):
     @auth.login_required
     @marshal_with(feature_set_features_fields)
     def get(self, feature_set_id):
-        return get_feature_set(feature_set_id), 200
+        return FeatureSet.get(feature_set_id), 200
 
     @auth.login_required
     @marshal_with(feature_set_features_fields)
     def post(self, feature_set_id):
-        fs = get_feature_set(feature_set_id)
         args = self.parser.parse_args()
         feature_ids = args['feature_ids']
-        for id in feature_ids:
-            f = Feature.query.get(id)
-            if f not in fs.features:
-                fs.features.append(f)
 
-        db.session.commit()
+        fs = FeatureSet.add_features(feature_set_id, feature_ids)
+
         return fs, 200
 
     @auth.login_required
     @marshal_with(feature_set_features_fields)
     def delete(self, feature_set_id):
-        fs = get_feature_set(feature_set_id)
         args = self.parser.parse_args()
         feature_ids = args['feature_ids']
-        for id in feature_ids:
-            f = Feature.query.get(id)
-            if f in fs.features:
-                fs.features.remove(f)
 
-        db.session.commit()
+        fs = FeatureSet.remove_features(feature_set_id, feature_ids)
+
         return fs, 201
