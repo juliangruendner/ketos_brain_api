@@ -62,7 +62,7 @@ def create_environment(name, desc, image_id, abort=True):
                                             detach=True,
                                             network=config.PROJECT_NAME+"_environment",
                                             ports={"8000/tcp": e.jupyter_port},
-                                            volumes={'/ketos/environments_data/'+e.container_name: {'bind': '/mlenvironment/models', 'mode': 'rw'}})
+                                            volumes={get_data_directory(e): {'bind': '/mlenvironment/models', 'mode': 'rw'}})
 
     e.container_id = container.id
     start_jupyter(e)
@@ -73,3 +73,7 @@ def create_environment(name, desc, image_id, abort=True):
     e.set_jupyter_url()
 
     return e
+
+
+def get_data_directory(env):
+    return '/ketos/environments_data/' + env.container_name
