@@ -127,7 +127,9 @@ def load_model(file, raise_abort=True):
         with open(tmp_path + METADATA_DIR + '/features.json', 'r') as infile:
             fs = json.load(infile)
             for f in fs:
-                feature = Feature.create(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'], name=f['name'], desc=f['description'])
+                feature = Feature.get_by_res_par_val(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'])
+                if not feature:
+                    feature = Feature.create(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'], name=f['name'], desc=f['description'])
                 features_created.append(feature)
 
         # create the feature set with the features and model assigned

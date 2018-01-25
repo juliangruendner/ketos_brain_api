@@ -71,3 +71,7 @@ def get_all():
 
 def get_all_for_user(user_id):
     return Feature.query.filter_by(creator_id=user_id).all()
+
+
+def get_by_res_par_val(resource, parameter_name, value):
+    return Feature.query.filter_by(resource=resource).filter_by(parameter_name=parameter_name).filter_by(value=value).first()
