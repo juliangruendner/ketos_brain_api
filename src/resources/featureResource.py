@@ -1,9 +1,8 @@
 from flask_restful import reqparse, fields, marshal_with
 from flask_restful_swagger_2 import swagger, Resource
-from rdb.rdb import db
 import rdb.models.feature as Feature
 from rdb.models.id import ID, id_fields
-from resources.userResource import auth, user_fields, check_request_for_logged_in_user
+from resources.userResource import auth, user_fields
 
 feature_fields = {
     'id': fields.Integer,
@@ -61,41 +60,18 @@ class FeatureResource(Resource):
     @auth.login_required
     @marshal_with(feature_fields)
     def put(self, feature_id):
-        f = Feature.get(feature_id)
-
-        check_request_for_logged_in_user(f.creator_id)
-
         args = self.parser.parse_args()
-        if args['resource']:
-            f.resource = args['resource']
 
-        if args['parameter_name']:
-            f.parameter_name = args['parameter_name']
+        f = Feature.update(feature_id=feature_id, resource=args['resource'], parameter_name=args['parameter_name'], value=args['value'], name=args['name'], desc=args['description'])
 
-        if args['value']:
-            f.value = args['value']
-
-        if args['name']:
-            f.name = args['name']
-
-        if args['description']:
-            f.description = args['description']
-
-        db.session.commit()
         return f, 200
 
     @auth.login_required
     @marshal_with(id_fields)
     def delete(self, feature_id):
-        f = Feature.get(feature_id)
-
-        check_request_for_logged_in_user(f.creator_id)
-
-        db.session.delete(f)
-        db.session.commit()
-
         id = ID()
-        id.id = feature_id
+        id.id = Feature.delete(feature_id)
+
         return id, 200
 
 

@@ -127,6 +127,7 @@ def load_model(file, raise_abort=True):
         with open(tmp_path + METADATA_DIR + '/features.json', 'r') as infile:
             fs = json.load(infile)
             for f in fs:
+                # do not create duplicate features
                 feature = Feature.get_by_res_par_val(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'])
                 if not feature:
                     feature = Feature.create(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'], name=f['name'], desc=f['description'])

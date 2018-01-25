@@ -1,10 +1,9 @@
 from flask_restful import reqparse, fields, marshal_with
 from flask_restful_swagger_2 import swagger, Resource
-from rdb.rdb import db
 import rdb.models.featureSet as FeatureSet
 from resources.featureResource import feature_fields
 from rdb.models.id import ID, id_fields
-from resources.userResource import auth, user_fields, check_request_for_logged_in_user
+from resources.userResource import auth, user_fields
 
 feature_set_fields = {
     'id': fields.Integer,
@@ -63,35 +62,18 @@ class FeatureSetResource(Resource):
     @auth.login_required
     @marshal_with(feature_set_fields)
     def put(self, feature_set_id):
-        fs = FeatureSet.get(feature_set_id)
-
-        check_request_for_logged_in_user(fs.creator_id)
-
         args = self.parser.parse_args()
-        if args['name']:
-            fs.name = args['name']
 
-        if args['description']:
-            fs.description = args['description']
+        fs = FeatureSet.update(feature_set_id=feature_set_id, name=args['name'], desc=args['description'])
 
-        db.session.commit()
         return fs, 200
 
     @auth.login_required
     @marshal_with(id_fields)
     def delete(self, feature_set_id):
-        fs = FeatureSet.get(feature_set_id)
-
-        check_request_for_logged_in_user(fs.creator_id)
-
-        fs.features = []
-        db.session.commit()
-
-        db.session.delete(fs)
-        db.session.commit()
-
         id = ID()
-        id.id = feature_set_id
+        id.id = FeatureSet.delete(feature_set_id)
+
         return id, 200
 
 

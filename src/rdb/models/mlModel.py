@@ -3,8 +3,9 @@ import datetime
 from flask import g
 import rdb.models.environment as Environment
 import requests
-from rdb.models.featureSet import FeatureSet
+import rdb.models.featureSet as FeatureSet
 from flask_restful import abort
+import rdb.models.user as User
 
 
 class MLModel(db.Model):
@@ -82,3 +83,33 @@ def get_all():
 
 def get_all_for_user(user_id):
     return MLModel.query.filter_by(creator_id=user_id).all()
+
+
+def update(model_id, name=None, desc=None, feature_set_id=None, raise_abort=True):
+    m = get(model_id, raise_abort=raise_abort)
+
+    User.check_request_for_logged_in_user(m.creator_id)
+
+    if name:
+        m.name = name
+
+    if desc:
+        m.description = desc
+
+    if feature_set_id:
+        fs = FeatureSet.get(feature_set_id, raise_abort=raise_abort)
+        m.feature_set_id = fs.id
+
+    db.session.commit()
+    return m, 200
+
+
+def delete(model_id, raise_abort=True):
+    m = get(model_id, raise_abort=raise_abort)
+
+    User.check_request_for_logged_in_user(m.creator_id)
+
+    db.session.delete(m)
+    db.session.commit()
+
+    return model_id

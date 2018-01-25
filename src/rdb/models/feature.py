@@ -2,6 +2,7 @@ from rdb.rdb import db
 import datetime
 from flask import g
 from flask_restful import abort
+import rdb.models.user as User
 
 
 class Feature(db.Model):
@@ -75,3 +76,38 @@ def get_all_for_user(user_id):
 
 def get_by_res_par_val(resource, parameter_name, value):
     return Feature.query.filter_by(resource=resource).filter_by(parameter_name=parameter_name).filter_by(value=value).first()
+
+
+def update(feature_id, resource=None, parameter_name=None, value=None, name=None, desc=None, raise_abort=True):
+    f = get(feature_id, raise_abort=raise_abort)
+
+    User.check_request_for_logged_in_user(f.creator_id)
+
+    if resource:
+        f.resource = resource
+
+    if parameter_name:
+        f.parameter_name = parameter_name
+
+    if value:
+        f.value = value
+
+    if name:
+        f.name = name
+
+    if desc:
+        f.description = desc
+
+    db.session.commit()
+    return f
+
+
+def delete(feature_id, raise_abort=True):
+    f = get(feature_id, raise_abort=raise_abort)
+
+    User.check_request_for_logged_in_user(f.creator_id)
+
+    db.session.delete(f)
+    db.session.commit()
+
+    return feature_id

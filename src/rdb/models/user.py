@@ -2,6 +2,8 @@ from passlib.apps import custom_app_context as pwd_context
 from rdb.rdb import db, LowerCaseText
 import datetime
 from flask_restful import abort
+from resources.adminAccess import is_admin_user
+from flask import g
 
 
 class User(db.Model):
@@ -42,6 +44,11 @@ class User(db.Model):
 
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
+
+
+def check_request_for_logged_in_user(user_id):
+    if not (is_admin_user() or user_id == g.user.id):
+        abort(403, message="only an admin or the logged in user matching the requested user id is allowed to use this")
 
 
 def get_by_username(username, raise_abort=True):
@@ -90,3 +97,38 @@ def create(username, email, password, first_name=None, last_name=None):
     db.session.commit()
 
     return u
+
+
+def update(user_id, username=None, email=None, password=None, first_name=None, last_name=None, raise_abort=True):
+    u = get(user_id, raise_abort=raise_abort)
+
+    check_request_for_logged_in_user(user_id)
+
+    if username:
+        u.username = username
+
+    if email:
+        u.email = email
+
+    if password:
+        u.hash_password(password)
+
+    if first_name:
+        u.first_name = first_name
+
+    if last_name:
+        u.last_name = last_name
+
+    db.session.commit()
+    return u, 200
+
+
+def delete(user_id, raise_abort=True):
+    u = get(user_id, raise_abort=raise_abort)
+
+    check_request_for_logged_in_user(user_id)
+
+    db.session.delete(u)
+    db.session.commit()
+
+    return user_id

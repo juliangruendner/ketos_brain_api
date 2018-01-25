@@ -9,6 +9,7 @@ import config
 import requests
 import uuid
 from flask_restful import abort
+import rdb.models.user as User
 
 
 class Environment(db.Model):
@@ -149,3 +150,52 @@ def get_all_for_user(user_id):
         e.handle_jupyter_data()
 
     return envs
+
+
+def update(env_id, status=None, name=None, desc=None, raise_abort=True):
+    e = get(env_id, raise_abort=raise_abort)
+
+    User.check_request_for_logged_in_user(e.creator_id)
+
+    if status and not e.status == status:
+        if status == Environment.Environment.Status.running.value:
+            dockerClient.containers.get(e.container_id).start()
+            e.start_jupyter()
+        elif status == Environment.Environment.Status.stopped.value:
+            dockerClient.containers.get(e.container_id).stop()
+        else:
+            if raise_abort:
+                abort(400, message="status {} is not allowed".format(status))
+            else:
+                return None
+
+        e.status = status
+
+    if name:
+        e.name = name
+
+    if desc:
+        e.description = desc
+
+    db.session.commit()
+    return e
+
+
+def delete(env_id, raise_abort=True):
+    e = get(env_id, raise_abort=raise_abort)
+
+    User.check_request_for_logged_in_user(e.creator_id)
+
+    if not e.status == 'stopped':
+        if raise_abort:
+            abort(405, message="environment must be stopped before it can be deleted")
+        else:
+            return None
+
+    container = dockerClient.containers.get(e.container_id)
+    container.remove(force=True)
+
+    db.session.delete(e)
+    db.session.commit()
+
+    return env_id

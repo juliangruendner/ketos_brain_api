@@ -3,7 +3,6 @@ from flask_restful import reqparse, abort, fields, marshal_with
 from flask_restful_swagger_2 import swagger, Resource
 import rdb.models.user as User
 from rdb.models.id import ID, id_fields
-from rdb.rdb import db
 from flask_httpauth import HTTPBasicAuth
 from resources.adminAccess import AdminAccess, is_admin_user
 
@@ -28,11 +27,6 @@ def verify_password(username, password):
         return False
     g.user = u
     return True
-
-
-def check_request_for_logged_in_user(user_id):
-    if not (is_admin_user() or user_id == g.user.id):
-        abort(403, message="only an admin or the logged in user matching the requested user id is allowed to use this")
 
 
 class UserLoginResource(Resource):
@@ -89,39 +83,16 @@ class UserResource(Resource):
     @auth.login_required
     @marshal_with(id_fields)
     def delete(self, user_id):
-        check_request_for_logged_in_user(user_id)
-
-        u = User.get(user_id)
-
-        db.session.delete(u)
-        db.session.commit()
-
         id = ID()
-        id.id = user_id
+        id.id = User.delete(user_id)
+
         return id, 200
 
     @auth.login_required
     @marshal_with(user_fields)
     def put(self, user_id):
-        check_request_for_logged_in_user(user_id)
-
-        u = User.get(user_id)
-
         args = self.parser.parse_args()
-        if args['username']:
-            u.username = args['username']
 
-        if args['email']:
-            u.email = args['email']
+        u = User.update(user_id=user_id, username=args['username'], email=args['email'], password=args['password'], first_name=args['first_name'], last_name=args['last_name'])
 
-        if args['password']:
-            u.hash_password(args['password'])
-
-        if args['first_name']:
-            u.first_name = args['first_name']
-
-        if args['last_name']:
-            u.last_name = args['last_name']
-
-        db.session.commit()
         return u, 200

@@ -3,6 +3,7 @@ import datetime
 from flask import g
 from flask_restful import abort
 import rdb.models.feature as Feature
+import rdb.models.user as User
 
 
 class FeatureSet(db.Model):
@@ -70,7 +71,7 @@ def get_all_for_user(user_id):
 
 
 def remove_features(feature_set_id, feature_ids, raise_abort=True):
-    fs = get(feature_set_id)
+    fs = get(feature_set_id, raise_abort=raise_abort)
     for id in feature_ids:
         f = Feature.get(id, raise_abort=raise_abort)
         if f in fs.features:
@@ -82,7 +83,7 @@ def remove_features(feature_set_id, feature_ids, raise_abort=True):
 
 
 def add_features(feature_set_id, feature_ids, raise_abort=True):
-    fs = get(feature_set_id)
+    fs = get(feature_set_id, raise_abort=raise_abort)
     for id in feature_ids:
         f = Feature.get(id, raise_abort=raise_abort)
         if f not in fs.features:
@@ -90,3 +91,32 @@ def add_features(feature_set_id, feature_ids, raise_abort=True):
 
     db.session.commit()
     return fs
+
+
+def update(feature_set_id, name=None, desc=None, raise_abort=True):
+    fs = get(feature_set_id, raise_abort=raise_abort)
+
+    User.check_request_for_logged_in_user(fs.creator_id)
+
+    if name:
+        fs.name = name
+
+    if desc:
+        fs.description = desc
+
+    db.session.commit()
+    return fs, 200
+
+
+def delete(feature_set_id, raise_abort=True):
+    fs = get(feature_set_id, raise_abort=raise_abort)
+
+    User.check_request_for_logged_in_user(fs.creator_id)
+
+    fs.features = []
+    db.session.commit()
+
+    db.session.delete(fs)
+    db.session.commit()
+
+    return feature_set_id

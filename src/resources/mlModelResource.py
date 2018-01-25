@@ -1,11 +1,9 @@
 from flask import send_from_directory, request
 from flask_restful import reqparse, abort, fields, marshal_with, marshal
 from flask_restful_swagger_2 import swagger, Resource
-from rdb.rdb import db
 import rdb.models.mlModel as MLModel
-import rdb.models.featureSet as FeatureSet
 from rdb.models.id import ID, id_fields
-from resources.userResource import auth, user_fields, check_request_for_logged_in_user
+from resources.userResource import auth, user_fields
 from resources.environmentResource import environment_fields
 from resources.featureSetResource import feature_set_fields
 import requests
@@ -80,34 +78,18 @@ class MLModelResource(Resource):
     @auth.login_required
     @marshal_with(ml_model_fields)
     def put(self, model_id):
-        m = MLModel.get(model_id)
-        check_request_for_logged_in_user(m.creator_id)
-
         args = self.parser.parse_args()
-        if args['name']:
-            m.name = args['name']
 
-        if args['description']:
-            m.description = args['description']
+        m = MLModel.update(model_id=model_id, name=args['name'], desc=args['description'], feature_set_id=args['feature_set_id'])
 
-        if args['feature_set_id']:
-            fs = FeatureSet.get(args['feature_set_id'])
-            m.feature_set_id = fs.id
-
-        db.session.commit()
         return m, 200
 
     @auth.login_required
     @marshal_with(id_fields)
     def delete(self, model_id):
-        m = MLModel.get(model_id)
-        check_request_for_logged_in_user(m.creator_id)
-
-        db.session.delete(m)
-        db.session.commit()
-
         id = ID()
-        id.id = model_id
+        id.id = MLModel.delete(model_id)
+
         return id, 200
 
 
