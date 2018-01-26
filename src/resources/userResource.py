@@ -1,12 +1,10 @@
 from flask import g
-from flask_restful import reqparse, abort, fields, marshal_with
+from flask_restful import reqparse, fields, marshal_with
 from flask_restful_swagger_2 import swagger, Resource
 import rdb.models.user as User
+from rdb.models.user import auth
 from rdb.models.id import ID, id_fields
-from flask_httpauth import HTTPBasicAuth
-from resources.adminAccess import AdminAccess, is_admin_user
-
-auth = HTTPBasicAuth()
+from resources.adminAccess import AdminAccess
 
 user_fields = {
     'id': fields.Integer,
@@ -17,16 +15,6 @@ user_fields = {
     'created_at': fields.DateTime,
     'updated_at': fields.DateTime
 }
-
-
-@auth.verify_password
-def verify_password(username, password):
-    u = User.get_by_username(username, raise_abort=False)
-
-    if not u or not u.verify_password(password):
-        return False
-    g.user = u
-    return True
 
 
 class UserLoginResource(Resource):

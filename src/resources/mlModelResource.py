@@ -9,6 +9,7 @@ from resources.featureSetResource import feature_set_fields
 import requests
 from util import modelPackagingUtil
 from flask_restplus import inputs
+import werkzeug
 
 ml_model_fields = {
     'id': fields.Integer,
@@ -103,9 +104,9 @@ class UserMLModelListResource(Resource):
         return MLModel.get_all_for_user(user_id), 200
 
 
-class MLModelPackageResource(Resource):
+class MLModelExportResource(Resource):
     def __init__(self):
-        super(MLModelPackageResource, self).__init__()
+        super(MLModelExportResource, self).__init__()
 
     @auth.login_required
     def post(self, model_id):
@@ -123,26 +124,29 @@ class MLModelPackageResource(Resource):
         return response
 
 
-def allowed_file(filename):
-    ALLOWED_EXTENSIONS = set(['zip'])
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-class MLModelLoadResource(Resource):
+class MLModelImportResource(Resource):
     def __init__(self):
-        super(MLModelLoadResource, self).__init__()
+        super(MLModelImportResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('file', type=werkzeug.datastructures.FileStorage, required=True, location='files')
+        self.parser.add_argument('environment_id', type=int, required=False, location='args')
+        self.parser.add_argument('feature_set_id', type=int, required=False, location='args')
+
+    def allowed_file(self, filename):
+        ALLOWED_EXTENSIONS = set(['zip'])
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
     @auth.login_required
     def post(self):
-        if 'file' not in request.files:
-            abort(400, message="File part is empty")
-        f = request.files['file']
+        args = self.parser.parse_args()
+        f = args['file']
+
         if f.filename == '':
             abort(400, message="No file selected")
-        if not allowed_file(f.filename):
+        if not self.allowed_file(f.filename):
             abort(400, message="File not allowed")
 
-        modelPackagingUtil.load_model(f)
+        modelPackagingUtil.load_model(file=f, environment_id=args['environment_id'], feature_set_id=args['feature_set_id'])
 
         return {'done': True}, 201
 

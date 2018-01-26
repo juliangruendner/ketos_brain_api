@@ -90,7 +90,7 @@ def package_model(model):
     rmtree(packaging_path_tmp)
 
 
-def load_model(file, raise_abort=True):
+def load_model(file, environment_id=None, feature_set_id=None, raise_abort=True):
     # generate temporary path to save file to
     tmp_uuid = str(uuid.uuid4().hex)
     tmp_path = '/tmp/' + tmp_uuid
@@ -113,7 +113,10 @@ def load_model(file, raise_abort=True):
     env_created = None
     with open(tmp_path + METADATA_DIR + '/environment.json', 'r') as infile:
         e = json.load(infile)
-        env_created = Environment.create(name=e['name'], desc=e['description'], image_id=create_image.id)
+        if not environment_id or environment_id <= 0:
+            env_created = Environment.create(name=e['name'], desc=e['description'], image_id=create_image.id)
+        else:
+            env_created = Environment.get(environment_id, raise_abort=raise_abort)
 
     # create the model which is to be loaded
     model_created = None
@@ -134,9 +137,15 @@ def load_model(file, raise_abort=True):
                 features_created.append(feature)
 
         # create the feature set with the features and model assigned
+        feature_set_created = None
         with open(tmp_path + METADATA_DIR + '/feature_set.json', 'r') as infile:
             fs = json.load(infile)
-            feature_set_created = FeatureSet.create(name=fs['name'], desc=fs['description'])
+            
+            if not feature_set_id or feature_set_id <= 0:
+                feature_set_created = FeatureSet.create(name=fs['name'], desc=fs['description'])
+            else:
+                feature_set_created = FeatureSet.get(feature_set_id, raise_abort=raise_abort)
+
             feature_set_created.features = features_created
             feature_set_created.ml_models.append(model_created)
             db.session.commit()

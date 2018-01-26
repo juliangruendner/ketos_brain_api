@@ -4,6 +4,10 @@ import datetime
 from flask_restful import abort
 from resources.adminAccess import is_admin_user
 from flask import g
+from flask_httpauth import HTTPBasicAuth
+
+
+auth = HTTPBasicAuth()
 
 
 class User(db.Model):
@@ -46,9 +50,19 @@ class User(db.Model):
         return pwd_context.verify(password, self.password_hash)
 
 
+@auth.verify_password
+def verify_password(username, password):
+    u = get_by_username(username, raise_abort=False)
+
+    if not u or not u.verify_password(password):
+        return False
+    g.user = u
+    return True
+
+
 def check_request_for_logged_in_user(user_id):
     if not (is_admin_user() or user_id == g.user.id):
-        abort(403, message="only an admin or the logged in user matching the requested user id is allowed to use this")
+        abort(403, message='only the creator or an admin has the permission to use this method')
 
 
 def get_by_username(username, raise_abort=True):
@@ -72,7 +86,7 @@ def abort_if_user_doesnt_exist(user_id):
         abort(404, message="user {} doesn't exist".format(user_id))
 
 
-def get_user(user_id, raise_abort=True):
+def get(user_id, raise_abort=True):
     u = User.query.get(user_id)
 
     if raise_abort and not u:

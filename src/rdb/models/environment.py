@@ -158,10 +158,10 @@ def update(env_id, status=None, name=None, desc=None, raise_abort=True):
     User.check_request_for_logged_in_user(e.creator_id)
 
     if status and not e.status == status:
-        if status == Environment.Environment.Status.running.value:
+        if status == Environment.Status.running.value:
             dockerClient.containers.get(e.container_id).start()
             e.start_jupyter()
-        elif status == Environment.Environment.Status.stopped.value:
+        elif status == Environment.Status.stopped.value:
             dockerClient.containers.get(e.container_id).stop()
         else:
             if raise_abort:
