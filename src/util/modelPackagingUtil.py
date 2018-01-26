@@ -45,40 +45,44 @@ def package_model(model):
     # create directory for metadata
     os.makedirs(metadata_path, mode=0o777)
 
-    # write model data to json file
-    with open(metadata_path + '/model.json', 'w') as outfile:
-        json.dump(model.as_dict(), outfile, default=alchemyencoder)
+    # create metadata json file
+    with open(metadata_path + '/metadata.json', 'w') as metadata:
+        metadata.write('[')
 
-    # write image data to json file
-    image = model.environment.base_image
-    with open(metadata_path + '/image.json', 'w') as outfile:
-        json.dump(image.as_dict(), outfile, default=alchemyencoder)
+        # write image data to json file
+        image = model.environment.base_image
+        json.dump(image.as_dict(), metadata, default=alchemyencoder)
+        metadata.write(',')
 
-    # write environment data to json file
-    env = model.environment
-    with open(metadata_path + '/environment.json', 'w') as outfile:
-        json.dump(env.as_dict(), outfile, default=alchemyencoder)
+        # write environment data to json file
+        env = model.environment
+        json.dump(env.as_dict(), metadata, default=alchemyencoder)
+        metadata.write(',')
 
-    # write feature set data to json file
-    feature_set = model.feature_set
-    if feature_set:
-        with open(metadata_path + '/feature_set.json', 'w') as outfile:
-            json.dump(feature_set.as_dict(), outfile, default=alchemyencoder)
+        # write model data to json file
+        json.dump(model.as_dict(), metadata, default=alchemyencoder)
 
-    # write single feature data from feature set to json file
-        with open(metadata_path + '/features.json', 'a') as outfile:
-            outfile.write('[')
-        features = feature_set.features
-        if features:
-            count = 0
-            for f in features:
-                with open(metadata_path + '/features.json', 'a') as outfile:
-                    json.dump(f.as_dict(), outfile, default=alchemyencoder)
+        # write feature set data to json file
+        feature_set = model.feature_set
+        if feature_set:
+            metadata.write(',')
+
+            # write single feature data from feature set to json file
+            metadata.write('[')
+            features = feature_set.features
+            if features:
+                count = 0
+                for f in features:
+                    json.dump(f.as_dict(), metadata, default=alchemyencoder)
                     count = count + 1
                     if count != len(features):
-                        outfile.write(',')
-        with open(metadata_path + '/features.json', 'a') as outfile:
-            outfile.write(']')
+                        metadata.write(',')
+            metadata.write(']')
+
+            metadata.write(',')
+            json.dump(feature_set.as_dict(), metadata, default=alchemyencoder)
+
+        metadata.write(']')
 
     # zip data to archive
     archive_path = packaging_path + '/' + model.ml_model_name
@@ -103,52 +107,50 @@ def load_model(file, environment_id=None, feature_set_id=None, raise_abort=True)
     unpack_archive(tmp_path + '/' + file.filename, tmp_path, 'zip')
     os.remove(tmp_path + '/' + file.filename)
 
+    # load metadata
+    metadata = None
+    with open(tmp_path + METADATA_DIR + '/metadata.json', 'r') as infile:
+        metadata = json.load(infile)
+
     # first of all: get the image of the environment to create
-    create_image = None
-    with open(tmp_path + METADATA_DIR + '/image.json', 'r') as infile:
-        i = json.load(infile)
-        create_image = Image.get_by_name(image_name=i['name'])
+    i = metadata[0]
+    create_image = Image.get_by_name(image_name=i['name'])
 
     # create and start the new environment
     env_created = None
-    with open(tmp_path + METADATA_DIR + '/environment.json', 'r') as infile:
-        e = json.load(infile)
-        if not environment_id or environment_id <= 0:
-            env_created = Environment.create(name=e['name'], desc=e['description'], image_id=create_image.id)
-        else:
-            env_created = Environment.get(environment_id, raise_abort=raise_abort)
+    e = metadata[1]
+    if not environment_id or environment_id <= 0:
+        env_created = Environment.create(name=e['name'], desc=e['description'], image_id=create_image.id)
+    else:
+        env_created = Environment.get(environment_id, raise_abort=raise_abort)
 
     # create the model which is to be loaded
-    model_created = None
-    with open(tmp_path + METADATA_DIR + '/model.json', 'r') as infile:
-        m = json.load(infile)
-        model_created = MLModel.create(name=m['name'], desc=m['description'], env_id=env_created.id, create_example_model=False, feature_set_id=None)
+    m = metadata[2]
+    model_created = MLModel.create(name=m['name'], desc=m['description'], env_id=env_created.id, create_example_model=False, feature_set_id=None)
 
-    if os.path.isfile(tmp_path + METADATA_DIR + '/features.json') and os.path.isfile(tmp_path + METADATA_DIR + '/feature_set.json'):
+    if len(metadata) > 3:
         # create the features
         features_created = list()
-        with open(tmp_path + METADATA_DIR + '/features.json', 'r') as infile:
-            fs = json.load(infile)
-            for f in fs:
-                # do not create duplicate features
-                feature = Feature.get_by_res_par_val(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'])
-                if not feature:
-                    feature = Feature.create(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'], name=f['name'], desc=f['description'])
-                features_created.append(feature)
+        features = metadata[3]
+        for f in features:
+            # do not create duplicate features
+            feature = Feature.get_by_res_par_val(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'])
+            if not feature:
+                feature = Feature.create(resource=f['resource'], parameter_name=f['parameter_name'], value=f['value'], name=f['name'], desc=f['description'])
+            features_created.append(feature)
 
         # create the feature set with the features and model assigned
         feature_set_created = None
-        with open(tmp_path + METADATA_DIR + '/feature_set.json', 'r') as infile:
-            fs = json.load(infile)
-            
-            if not feature_set_id or feature_set_id <= 0:
-                feature_set_created = FeatureSet.create(name=fs['name'], desc=fs['description'])
-            else:
-                feature_set_created = FeatureSet.get(feature_set_id, raise_abort=raise_abort)
+        fs = metadata[4]
 
-            feature_set_created.features = features_created
-            feature_set_created.ml_models.append(model_created)
-            db.session.commit()
+        if not feature_set_id or feature_set_id <= 0:
+            feature_set_created = FeatureSet.create(name=fs['name'], desc=fs['description'])
+        else:
+            feature_set_created = FeatureSet.get(feature_set_id, raise_abort=raise_abort)
+
+        feature_set_created.features = features_created
+        feature_set_created.ml_models.append(model_created)
+        db.session.commit()
 
     # remove temporarily created directory and files
     rmtree(env_created.get_data_directory() + '/' + model_created.ml_model_name)
