@@ -168,7 +168,7 @@ def get_suitable_environments(file, raise_abort=True):
     return Environment.get_by_image_id(image.id, raise_abort=raise_abort)
 
 
-def get_suitable_feature_sets(file, raise_abort=True):
+def get_suitable_feature_sets(file):
     metadata = json.load(file)
 
     if len(metadata) <= 3:
