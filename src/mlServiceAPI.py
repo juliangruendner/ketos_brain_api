@@ -13,6 +13,7 @@ from resources.featureSetResource import FeatureSetListResource, FeatureSetResou
 from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource, MLModelPredicitionResource
 from resources.mlModelResource import MLModelExportResource, MLModelImportResource, MLModelImportSuitableEnvironmentResource, MLModelImportSuitableFeatureSetResource
 from resources.dataResource import DataListResource, DataResource
+from resources.resourceConfigResource import ResourceConfigList
 from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images, create_default_features
 from flask_cors import CORS
 
@@ -54,6 +55,8 @@ api.add_resource(FeatureResource, '/features/<int:feature_id>', endpoint='featur
 api.add_resource(FeatureSetListResource, '/featuresets', endpoint='feature_sets')
 api.add_resource(FeatureSetResource, '/featuresets/<int:feature_set_id>', endpoint='feature_set')
 api.add_resource(FeatureSetFeatureListResource, '/featuresets/<int:feature_set_id>/features', endpoint='feature_set_features')
+api.add_resource(ResourceConfigList, '/resources_config', endpoint='resources_config')
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

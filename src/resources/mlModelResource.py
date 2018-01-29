@@ -7,6 +7,7 @@ from resources.userResource import auth, user_fields
 from resources.environmentResource import environment_fields
 from resources.featureSetResource import feature_set_fields
 import requests
+import config
 from util import modelPackagingUtil
 from flask_restplus import inputs
 import werkzeug
@@ -223,7 +224,7 @@ class MLModelPredicitionResource(Resource):
 
         preprocess_body = {'patient': patient_ids, 'feature_set': feature_set}
         
-        resp = requests.post('http://data_pre:5000/crawler', json = preprocess_body).json()
+        resp = requests.post('http://' + config.DATA_PREPROCESSING_HOST + '/crawler', json = preprocess_body).json()
         csv_url = resp['csv_url']
         csv_url = csv_url.replace("localhost", "data_pre")
         data_url = {'dataUrl': csv_url}

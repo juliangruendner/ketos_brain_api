@@ -5,6 +5,7 @@ from rdb.rdb import db
 from rdb.models.user import User
 from resources.userResource import auth
 import requests
+import config
 from rdb.models.featureSet import FeatureSet
 import json
 
@@ -30,7 +31,7 @@ class DataListResource(Resource):
         args = parser.parse_args()
         job_id = args['jobId']
 
-        s_query = "http://data_pre:5000/crawler/jobs"
+        s_query = "http://" + config.DATA_PREPROCESSING_HOST + "/crawler/jobs"
 
         if job_id:
             s_query = s_query + "/" + str(job_id)
@@ -56,7 +57,7 @@ class DataListResource(Resource):
 
         print(preprocess_body)
 
-        resp = requests.post('http://data_pre:5000/crawler/jobs', json = preprocess_body).json()
+        resp = requests.post("http://" + config.DATA_PREPROCESSING_HOST + "/crawler/jobs", json = preprocess_body).json()
 
         return resp, 200
 
@@ -68,7 +69,7 @@ class DataResource(Resource):
     @auth.login_required
     def get(self, datarequest_id):
 
-        s_query = "http://data_pre:5000/aggregation/" + str(datarequest_id) + "?output_type=csv&aggregation_type=latest"
+        s_query = "http://" + config.DATA_PREPROCESSING_HOST + "/aggregation/" + str(datarequest_id) + "?output_type=csv&aggregation_type=latest"
         result = requests.get(s_query)
         return Response(result, mimetype='text/csv')
 
