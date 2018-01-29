@@ -45,13 +45,8 @@ def get(image_id, raise_abort=True):
     return i
 
 
-def get_by_name(image_name, raise_abort=True):
-    image = Image.query.filter_by(name=image_name).first()
-
-    if raise_abort and not image:
-        abort_if_image_doesnt_exist(image_name)
-
-    return image
+def get_by_name(image_name):
+    return Image.query.filter_by(name=image_name).first()
 
 
 def get_all():
