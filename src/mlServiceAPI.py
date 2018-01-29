@@ -56,7 +56,7 @@ api.add_resource(FeatureSetListResource, '/featuresets', endpoint='feature_sets'
 api.add_resource(FeatureSetResource, '/featuresets/<int:feature_set_id>', endpoint='feature_set')
 api.add_resource(FeatureSetFeatureListResource, '/featuresets/<int:feature_set_id>/features', endpoint='feature_set_features')
 api.add_resource(ResourceConfigList, '/resources_config', endpoint='resources_config_list')
-api.add_resource(ResourceConfig, '/resources_config/<str:resource_name>', endpoint='resources_config')
+api.add_resource(ResourceConfig, '/resources_config/<resource_name>', endpoint='resources_config')
 
 
 if __name__ == '__main__':
