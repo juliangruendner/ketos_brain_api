@@ -10,6 +10,7 @@ import rdb.models.feature as Feature
 import rdb.models.featureSet as FeatureSet
 import rdb.models.environment as Environment
 from rdb.rdb import db
+from flask import g
 
 
 PACKAGING_PATH_PREFIX = '/ketos/environments_data/packaging/'
@@ -158,3 +159,33 @@ def load_model(file, environment_id=None, feature_set_id=None, raise_abort=True)
     for filename in os.listdir(tmp_path):
         move(tmp_path + '/' + filename, env_created.get_data_directory() + '/' + model_created.ml_model_name)
     rmtree(env_created.get_data_directory() + '/' + model_created.ml_model_name + METADATA_DIR)
+
+
+def get_suitable_environments(file, raise_abort=True):
+    metadata = json.load(file)
+    image_metadata = metadata[0]
+    image = Image.get_by_name(image_name=image_metadata['name'], raise_abort=raise_abort)
+    return Environment.get_by_image_id(image.id, raise_abort=raise_abort)
+
+
+def get_suitable_feature_sets(file):
+    metadata = json.load(file)
+
+    if len(metadata) <= 3:
+        return None
+
+    features_metadata = metadata[3]
+    feature_sets = FeatureSet.get_all_for_user(g.user.id)
+    ret = list()
+    cnt_features = len(features_metadata)
+    for fs in feature_sets:
+        cnt_match = 0
+        for f in fs.features:
+            for f_metadata in features_metadata:
+                if f_metadata['resource'] == f.resource and f_metadata['parameter_name'] == f.parameter_name and f_metadata['value'] == f.value:
+                    cnt_match += 1
+                    break
+        if cnt_match == cnt_features:
+            ret.append(fs)
+
+    return ret

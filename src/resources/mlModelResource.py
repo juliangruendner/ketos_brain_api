@@ -1,4 +1,4 @@
-from flask import send_from_directory, request
+from flask import send_from_directory
 from flask_restful import reqparse, abort, fields, marshal_with, marshal
 from flask_restful_swagger_2 import swagger, Resource
 import rdb.models.mlModel as MLModel
@@ -149,6 +149,54 @@ class MLModelImportResource(Resource):
         modelPackagingUtil.load_model(file=f, environment_id=args['environment_id'], feature_set_id=args['feature_set_id'])
 
         return {'done': True}, 201
+
+
+class MLModelImportSuitableEnvironmentResource(Resource):
+    def __init__(self):
+        super(MLModelImportSuitableEnvironmentResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('file', type=werkzeug.datastructures.FileStorage, required=True, location='files')
+
+    def allowed_file(self, filename):
+        ALLOWED_EXTENSIONS = set(['json'])
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    @auth.login_required
+    @marshal_with(environment_fields)
+    def post(self):
+        args = self.parser.parse_args()
+        f = args['file']
+
+        if f.filename == '':
+            abort(400, message="No file selected")
+        if not self.allowed_file(f.filename):
+            abort(400, message="File not allowed")
+
+        return modelPackagingUtil.get_suitable_environments(f, raise_abort=False), 200
+
+
+class MLModelImportSuitableFeatureSetResource(Resource):
+    def __init__(self):
+        super(MLModelImportSuitableFeatureSetResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('file', type=werkzeug.datastructures.FileStorage, required=True, location='files')
+
+    def allowed_file(self, filename):
+        ALLOWED_EXTENSIONS = set(['json'])
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    @auth.login_required
+    @marshal_with(feature_set_fields)
+    def post(self):
+        args = self.parser.parse_args()
+        f = args['file']
+
+        if f.filename == '':
+            abort(400, message="No file selected")
+        if not self.allowed_file(f.filename):
+            abort(400, message="File not allowed")
+
+        return modelPackagingUtil.get_suitable_feature_sets(f), 200
 
 
 class MLModelPredicitionResource(Resource):

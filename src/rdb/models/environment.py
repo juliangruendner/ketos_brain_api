@@ -152,6 +152,14 @@ def get_all_for_user(user_id):
     return envs
 
 
+def get_by_image_id(image_id):
+    envs = Environment.query.filter_by(image_id=image_id).all()
+    for e in envs:
+        e.handle_jupyter_data()
+
+    return envs
+
+
 def update(env_id, status=None, name=None, desc=None, raise_abort=True):
     e = get(env_id, raise_abort=raise_abort)
 
