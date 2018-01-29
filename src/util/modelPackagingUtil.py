@@ -161,11 +161,11 @@ def load_model(file, environment_id=None, feature_set_id=None, raise_abort=True)
     rmtree(env_created.get_data_directory() + '/' + model_created.ml_model_name + METADATA_DIR)
 
 
-def get_suitable_environments(file, raise_abort=True):
+def get_suitable_environments(file):
     metadata = json.load(file)
     image_metadata = metadata[0]
-    image = Image.get_by_name(image_name=image_metadata['name'], raise_abort=raise_abort)
-    return Environment.get_by_image_id(image.id, raise_abort=raise_abort)
+    image = Image.get_by_name(image_name=image_metadata['name'])
+    return Environment.get_by_image_id(image.id)
 
 
 def get_suitable_feature_sets(file):

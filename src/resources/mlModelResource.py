@@ -173,7 +173,7 @@ class MLModelImportSuitableEnvironmentResource(Resource):
         if not self.allowed_file(f.filename):
             abort(400, message="File not allowed")
 
-        return modelPackagingUtil.get_suitable_environments(f, raise_abort=False), 200
+        return modelPackagingUtil.get_suitable_environments(f), 200
 
 
 class MLModelImportSuitableFeatureSetResource(Resource):
