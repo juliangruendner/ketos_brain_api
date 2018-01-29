@@ -36,9 +36,9 @@ class ResourceConfigList(Resource):
         args = self.parser.parse_args()
         resource_name = args["resource_name"]
 
-        resp = requests.delete(DATA_PRE_RESOURCE_CONFIG_URL + "/" + + "resource_name").json
+        resp = requests.delete(DATA_PRE_RESOURCE_CONFIG_URL + "/" + resource_name).json()
 
-        return resp, 200
+        return resp["resource_name"], 200
 
 class ResourceConfig(Resource):
     def __init__(self):
@@ -59,15 +59,12 @@ class ResourceConfig(Resource):
         resource_mapping = args["resource_mapping"]
 
         preprocess_body = {"resource_mapping": resource_mapping}
-        resp = requests.post(DATA_PRE_RESOURCE_CONFIG_URL + "resource_name", json = preprocess_body).json()
+        resp = requests.post(DATA_PRE_RESOURCE_CONFIG_URL + resource_name, json = preprocess_body).json()
 
         return resp, 200
     
     @auth.login_required
     def delete(self, resource_name):
-        args = self.parser.parse_args()
-        resource_name = args["resource_name"]
+        resp = requests.delete(DATA_PRE_RESOURCE_CONFIG_URL + "/" + resource_name).json()
 
-        resp = requests.delete(DATA_PRE_RESOURCE_CONFIG_URL + "/" + "resource_name").json
-
-        return resp, 200
+        return resp["resource_name"], 200
