@@ -68,6 +68,6 @@ class ResourceConfig(Resource):
         args = self.parser.parse_args()
         resource_name = args["resource_name"]
 
-        resp = requests.delete(DATA_PRE_RESOURCE_CONFIG_URL + "/" + + "resource_name").json
+        resp = requests.delete(DATA_PRE_RESOURCE_CONFIG_URL + "/" + "resource_name").json
 
         return resp, 200
