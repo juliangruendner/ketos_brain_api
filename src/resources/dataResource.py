@@ -8,6 +8,8 @@ import requests
 import config
 from rdb.models.featureSet import FeatureSet
 import json
+import logging
+logger = logging.getLogger(__name__)
 
 feature_fields = {
     'resource': fields.String,
@@ -21,7 +23,8 @@ class DataListResource(Resource):
         super(DataListResource, self).__init__()
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('patient_ids', type=int,action='append', required=True, help='no patientIds provided', location='json')
-        self.parser.add_argument('feature_set_id', type=int, required=True, help='No feature set id provided', location='json')
+        self.parser.add_argument('feature_set_id', type=int, location='json')
+        self.parser.add_argument('resource_name', type=str, location='json')
 
     @auth.login_required
     def get(self):
@@ -45,15 +48,25 @@ class DataListResource(Resource):
         args = self.parser.parse_args()
         patient_ids = args['patient_ids']
         feature_set = args['feature_set_id']
+        resource_name = args['resource_name']
 
-        features = FeatureSet.query.get(1).features
-        feature_set = []
+        if ((feature_set is None and resource_name is None) or (feature_set is not None and resource_name is not None)):
+            return "Must provide feature_set_id XOR resource_name", 400
 
-        for feature in features:
-            cur_feature = marshal(feature, feature_fields)
-            feature_set.append(cur_feature)
+        preprocess_body = {'patient_ids' : patient_ids}
 
-        preprocess_body = {'patient_ids' : patient_ids, 'feature_set': feature_set}
+        if (feature_set is not None):
+            features = FeatureSet.query.get(1).features
+            feature_set = []
+
+            for feature in features:
+                cur_feature = marshal(feature, feature_fields)
+                feature_set.append(cur_feature)
+
+            preprocess_body["feature_set"] = feature_set
+        
+        if (resource_name is not None):
+            preprocess_body["resource"] = resource_name
 
         print(preprocess_body)
 
