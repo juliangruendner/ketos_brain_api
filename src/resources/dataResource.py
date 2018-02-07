@@ -57,7 +57,7 @@ class DataListResource(Resource):
         preprocess_body = {'patient_ids' : patient_ids}
 
         if (feature_set is not None):
-            features = FeatureSet.query.get(1).features
+            features = FeatureSet.query.get(feature_set).features
             feature_set = []
 
             for feature in features:
