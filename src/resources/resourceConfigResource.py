@@ -35,7 +35,9 @@ class ResourceConfig(Resource):
         resource_value_relative_path = args["resource_value_relative_path"]
         sort_order = args["sort_order"]
 
-        preprocess_body = {"resource_value_relative_path": resource_value_relative_path, "sort_order": sort_order}
+        preprocess_body = {"resource_value_relative_path": resource_value_relative_path}
+        if sort_order is not None:
+            preprocess_body["sort_order"] = sort_order
         resp = requests.post(DATA_PRE_RESOURCE_CONFIG_URL + "/" + resource_name, json = preprocess_body).json()
 
         return resp, 200
