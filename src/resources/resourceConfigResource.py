@@ -35,7 +35,7 @@ class ResourceConfig(Resource):
         resource_mapping = args["resource_mapping"]
 
         preprocess_body = {"resource_mapping": resource_mapping}
-        resp = requests.post(DATA_PRE_RESOURCE_CONFIG_URL + resource_name, json = preprocess_body).json()
+        resp = requests.post(DATA_PRE_RESOURCE_CONFIG_URL + "/" + resource_name, json = preprocess_body).json()
 
         return resp, 200
     
