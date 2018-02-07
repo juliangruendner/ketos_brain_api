@@ -19,8 +19,8 @@ class ResourceConfigList(Resource):
 class ResourceConfig(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('resource_mapping', type = dict, action = 'append', location = 'json')
-
+        self.parser.add_argument('resource_value_relative_path', type = str, location = 'json')
+        self.parser.add_argument('sort_order', type = str, action = 'append', location = 'json')
         super(ResourceConfig, self).__init__()
 
     @auth.login_required
@@ -32,9 +32,10 @@ class ResourceConfig(Resource):
     @auth.login_required
     def post(self, resource_name):
         args = self.parser.parse_args()
-        resource_mapping = args["resource_mapping"]
+        resource_value_relative_path = args["resource_value_relative_path"]
+        sort_order = args["sort_order"]
 
-        preprocess_body = {"resource_mapping": resource_mapping}
+        preprocess_body = {"resource_value_relative_path": resource_value_relative_path, "sort_order": sort_order}
         resp = requests.post(DATA_PRE_RESOURCE_CONFIG_URL + "/" + resource_name, json = preprocess_body).json()
 
         return resp, 200
