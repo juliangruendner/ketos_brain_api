@@ -1,8 +1,3 @@
-import json
-import logging
-import logging.config
-logging.config.dictConfig(json.load(open("logging_config.json", "r")))
-
 from flask import Flask
 from flask_restful_swagger_2 import Api
 from resources.userResource import UserListResource, UserResource, UserLoginResource
@@ -16,6 +11,10 @@ from resources.dataResource import DataListResource, DataResource
 from resources.resourceConfigResource import ResourceConfigList, ResourceConfig
 from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images, create_default_features
 from flask_cors import CORS
+import json
+import logging
+import logging.config
+logging.config.dictConfig(json.load(open("logging_config.json", "r")))
 
 
 app = Flask(__name__)
