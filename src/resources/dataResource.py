@@ -15,6 +15,7 @@ feature_fields = {
     'resource': fields.String,
     'key': fields.String(attribute='parameter_name'),
     'value': fields.String,
+    'name': fields.String,
 }
 
 
