@@ -11,3 +11,4 @@ uwsgi
 virtualenv
 flask-restful-swagger-2
 flask_restplus
+fhirclient==1.0.3 # update on gt-fhir update

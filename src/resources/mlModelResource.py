@@ -11,7 +11,9 @@ import config
 from util import modelPackagingUtil
 from flask_restplus import inputs
 import werkzeug
-
+import fhirclient.models.riskassessment as fhir_ra
+import rdb.fhir_models.riskAssessment as fhir_ra_base
+import sys
 ml_model_fields = {
     'id': fields.Integer,
     'environment_id': fields.Integer,
@@ -208,28 +210,55 @@ class MLModelPredicitionResource(Resource):
 
     @auth.login_required
     def post(self, model_id):
-        
         parser = reqparse.RequestParser()
-        parser.add_argument('patient_ids', type= int, required= True , help='no patientIds provided', location='json')
+        parser.add_argument('patient_ids', type=int, required=True, action='append', help='no patientIds provided', location='json')
+        parser.add_argument('writeToFhir', type=inputs.boolean, required=False, location='args')
         args = parser.parse_args()
         patient_ids = args['patient_ids']
 
         ml_model = MLModel.get(model_id)
         features = ml_model.feature_set.features
         feature_set = []
-
+        
         for feature in features:
             cur_feature = marshal(feature, feature_fields)
             feature_set.append(cur_feature)
 
         preprocess_body = {'patient': patient_ids, 'feature_set': feature_set}
         
-        resp = requests.post('http://' + config.DATA_PREPROCESSING_HOST + '/crawler', json = preprocess_body).json()
+        resp = requests.post('http://' + config.DATA_PREPROCESSING_HOST + '/crawler', json=preprocess_body).json()
         csv_url = resp['csv_url']
         csv_url = csv_url.replace("localhost", "data_pre")
+
+        #csv_url = 'http://data_pre:5000/aggregation/5a7c3dce2f3b210016d2af87?output_type=csv&aggregation_type=latest'
         data_url = {'dataUrl': csv_url}
         docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
-        print(docker_api_call)
-        resp = requests.get(docker_api_call, params = data_url).json()
 
-        return resp, 200
+        predictions = requests.get(docker_api_call, params=data_url).json()
+        print('write to fhir = ', file=sys.stderr)
+        print(args['writeToFhir'], file=sys.stderr)
+        if args['writeToFhir'] is not False:
+            return self.predict_fhir_request(predictions)
+
+        return predictions, 200
+        
+    def predict_fhir_request(self, predictions):
+        risk_ass = fhir_ra.RiskAssessment(fhir_ra_base.fhir__base_risk_assessment)
+        cond_ref = 'Measurement/700000002'
+        risk_ass.condition = {"reference": cond_ref}
+        
+        patient_prediction = fhir_ra_base.fhir_base_patient_prediction
+        risk_ass.prediction = [patient_prediction]
+        predictions = predictions['prediction']
+        fhir_risk_assessments = []
+
+        for prediction in predictions:
+            risk_ass.subject = {"reference": "Patient/" + prediction['patientId']}
+            # temporary mapping of output string to code with "_" - needs to be changed to proper concept
+            patient_prediction['outcome']['coding'][0]['code'] = str(prediction['prediction']).replace(' ', '_')
+            risk_ass.prediction = [patient_prediction]
+            fhir_risk_assessments.append(risk_ass.as_json())
+            # resp = requests.post('http://gruendner.de:8080/gtfhir/base/RiskAssessment', json=risk_ass.as_json())
+            # print(resp)
+
+        return fhir_risk_assessments, 200
