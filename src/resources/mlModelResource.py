@@ -58,7 +58,8 @@ class MLModelListResource(Resource):
     def post(self):
         args = self.parser.parse_args()
 
-        m = MLModel.create(name=args['name'], desc=args['description'], env_id=args['environment_id'], create_example_model=args['create_example_model'], feature_set_id=args['feature_set_id'])
+        m = MLModel.create(name=args['name'], desc=args['description'], env_id=args['environment_id'], create_example_model=args['create_example_model'],
+                           feature_set_id=args['feature_set_id'])
 
         return m, 201
 
@@ -219,18 +220,18 @@ class MLModelPredicitionResource(Resource):
         ml_model = MLModel.get(model_id)
         features = ml_model.feature_set.features
         feature_set = []
-        
+
         for feature in features:
             cur_feature = marshal(feature, feature_fields)
             feature_set.append(cur_feature)
 
         preprocess_body = {'patient': patient_ids, 'feature_set': feature_set}
-        
+
         resp = requests.post('http://' + config.DATA_PREPROCESSING_HOST + '/crawler', json=preprocess_body).json()
         csv_url = resp['csv_url']
         csv_url = csv_url.replace("localhost", "data_pre")
 
-        #csv_url = 'http://data_pre:5000/aggregation/5a7c3dce2f3b210016d2af87?output_type=csv&aggregation_type=latest'
+        # csv_url = 'http://data_pre:5000/aggregation/5a7c3dce2f3b210016d2af87?output_type=csv&aggregation_type=latest'
         data_url = {'dataUrl': csv_url}
         docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
 
@@ -241,12 +242,12 @@ class MLModelPredicitionResource(Resource):
             return self.predict_fhir_request(predictions)
 
         return predictions, 200
-        
+
     def predict_fhir_request(self, predictions):
         risk_ass = fhir_ra.RiskAssessment(fhir_ra_base.fhir__base_risk_assessment)
         cond_ref = 'Measurement/700000002'
         risk_ass.condition = {"reference": cond_ref}
-        
+
         patient_prediction = fhir_ra_base.fhir_base_patient_prediction
         risk_ass.prediction = [patient_prediction]
         predictions = predictions['prediction']
