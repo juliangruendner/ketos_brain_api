@@ -18,6 +18,8 @@ class MLModel(db.Model):
     ml_model_name = db.Column(db.Text, nullable=False)
     name = db.Column(LowerCaseText, nullable=False)
     description = db.Column(db.Text, nullable=True)
+    condition_refcode = db.Column(db.Text, nullable=True)
+    condition_name = db.Column(db.Text, nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
@@ -37,7 +39,7 @@ class MLModel(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-def create(name, desc, env_id, feature_set_id, create_example_model=False, raise_abort=True):
+def create(name, desc, env_id, feature_set_id, cond_refcode=None, cond_name=None, create_example_model=False, raise_abort=True):
     e = Environment.get(env_id, raise_abort=raise_abort)
 
     m = MLModel()
@@ -50,7 +52,13 @@ def create(name, desc, env_id, feature_set_id, create_example_model=False, raise
     m.name = name
     m.description = desc
     m.creator_id = g.user.id
-    
+
+    if cond_refcode:
+        m.condition_refcode = cond_refcode
+
+    if cond_name:
+        m.condition_name = cond_name
+
     params = None
     if create_example_model:
         params = {'createExampleModel': create_example_model}
@@ -85,7 +93,7 @@ def get_all_for_user(user_id):
     return MLModel.query.filter_by(creator_id=user_id).all()
 
 
-def update(model_id, name=None, desc=None, feature_set_id=None, raise_abort=True):
+def update(model_id, name=None, desc=None, condition_refcode=None, condition_name=None, feature_set_id=None, raise_abort=True):
     m = get(model_id, raise_abort=raise_abort)
 
     User.check_request_for_logged_in_user(m.creator_id)
@@ -95,6 +103,12 @@ def update(model_id, name=None, desc=None, feature_set_id=None, raise_abort=True
 
     if desc:
         m.description = desc
+
+    if condition_refcode:
+        m.condition_refcode = condition_refcode
+
+    if condition_name:
+        m.condition_name = condition_name
 
     if feature_set_id:
         fs = FeatureSet.get(feature_set_id, raise_abort=raise_abort)

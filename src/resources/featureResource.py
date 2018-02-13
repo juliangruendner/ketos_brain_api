@@ -62,7 +62,8 @@ class FeatureResource(Resource):
     def put(self, feature_id):
         args = self.parser.parse_args()
 
-        f = Feature.update(feature_id=feature_id, resource=args['resource'], parameter_name=args['parameter_name'], value=args['value'], name=args['name'], desc=args['description'])
+        f = Feature.update(feature_id=feature_id, resource=args['resource'], parameter_name=args['parameter_name'], value=args['value'], name=args['name'],
+                           desc=args['description'])
 
         return f, 200
 

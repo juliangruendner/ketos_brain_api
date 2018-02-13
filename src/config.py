@@ -16,4 +16,8 @@ ML_SERVICE_ADMIN_PASSWORD = str(os.getenv('ML_SERVICE_ADMIN_PASSWORD', ''))
 PROJECT_NAME = str(os.getenv('PROJECT_NAME', ''))
 
 DATA_PREPROCESSING_HOST = str(os.getenv('DATA_PREPROCESSING_HOST', ''))
+
+HAPIFHIR_URL = str(os.getenv('HAPIFHIR_URL', ''))
+
 ANNOTATION_API_HOST = str(os.getenv('ANNOTATION_API_HOST', ''))
+
