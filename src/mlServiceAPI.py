@@ -69,7 +69,7 @@ api.add_resource(AnnotationResultListResource, '/annotation_tasks/results', endp
 api.add_resource(AnnotatorResultListResource, '/annotators/<int:annotator_id>/results', endpoint='results_for_annotator')
 api.add_resource(AnnotationTaskResultListResource, '/annotation_tasks/<int:task_id>/results', endpoint='results_for_annotation_task')
 
-api.add_resource(ModelPredictionOutcomeListResource, 'models/outcomes', endpoint='prediction_outcomes')
+api.add_resource(ModelPredictionOutcomeListResource, '/models/outcomes', endpoint='prediction_outcomes')
 api.add_resource(PredictionOutcomeResource, '/models/outcomes/<int:pred_outcome_id>', endpoint='prediction_outcome')
 api.add_resource(PredictionOutcomeListResource, '/models/<int:model_id>/prediction/outcomes', endpoint='model_prediction_outcome')
 
