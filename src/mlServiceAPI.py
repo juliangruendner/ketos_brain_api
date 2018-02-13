@@ -9,6 +9,8 @@ from resources.mlModelResource import MLModelListResource, MLModelResource, User
 from resources.mlModelResource import MLModelExportResource, MLModelImportResource, MLModelImportSuitableEnvironmentResource, MLModelImportSuitableFeatureSetResource
 from resources.dataResource import DataListResource, DataResource
 from resources.resourceConfigResource import ResourceConfigList, ResourceConfig
+from resources.annotationResource import AnnotationTaskListResource, AnnotationTaskResource, UserAnnotationTaskListResource, AnnotationTaskEntryListResource, AnnotationTaskResultListResource
+from resources.annotationResource import AnnotationTaskScaleEntryListResource, AnnotationTaskAnnotatorListResource, AnnotationResultListResource, AnnotatorResultListResource
 from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images, create_default_features
 from flask_cors import CORS
 import json
@@ -56,7 +58,15 @@ api.add_resource(FeatureSetResource, '/featuresets/<int:feature_set_id>', endpoi
 api.add_resource(FeatureSetFeatureListResource, '/featuresets/<int:feature_set_id>/features', endpoint='feature_set_features')
 api.add_resource(ResourceConfigList, '/resources_config', endpoint='resources_config_list')
 api.add_resource(ResourceConfig, '/resources_config/<resource_name>', endpoint='resources_config')
-
+api.add_resource(AnnotationTaskListResource, '/annotation_tasks', endpoint='annotation_tasks')
+api.add_resource(AnnotationTaskResource, '/annotation_tasks/<int:task_id>', endpoint='annotation_task')
+api.add_resource(UserAnnotationTaskListResource, '/users/<int:user_id>/annotation_tasks', endpoint='annotation_tasks_for_user')
+api.add_resource(AnnotationTaskEntryListResource, '/annotation_tasks/<int:task_id>/entries', endpoint='entries_for_annotation_task')
+api.add_resource(AnnotationTaskScaleEntryListResource, '/annotation_tasks/<int:task_id>/scale_entries', endpoint='scale_entries_for_annotation_task')
+api.add_resource(AnnotationTaskAnnotatorListResource, '/annotation_tasks/<int:task_id>/annotators', endpoint='annotators_for_annotation_task')
+api.add_resource(AnnotationResultListResource, '/annotation_tasks/results', endpoint='annotation_tasks_results')
+api.add_resource(AnnotatorResultListResource, '/annotators/<int:annotator_id>/results', endpoint='results_for_annotator')
+api.add_resource(AnnotationTaskResultListResource, '/annotation_tasks/<int:task_id>/results', endpoint='results_for_annotation_task')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
