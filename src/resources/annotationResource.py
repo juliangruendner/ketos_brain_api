@@ -6,12 +6,13 @@ import requests
 import config
 
 
-def get_anno_api_url(path):
-    return 'http://' + config.ANNOTATION_API_HOST + path
+def get_anno_api_url(req):
+    return 'http://' + config.ANNOTATION_API_HOST + req.path
 
 
 def do_anno_api_request(req):
-    resp = requests.request(method=req.method, url=get_anno_api_url(req.path), params=req.args, json=req.get_json())
+    anno_api_url = get_anno_api_url(req)
+    resp = requests.request(method=req.method, url=anno_api_url, params=req.args, json=req.get_json())
     return resp
 
 
