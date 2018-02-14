@@ -273,6 +273,5 @@ class MLModelPredicitionResource(Resource):
             risk_ass.prediction = [patient_prediction]
             fhir_risk_assessments.append(risk_ass.as_json())
             resp = requests.post('http://gruendner.de:8080/gtfhir/base/RiskAssessment', json=risk_ass.as_json())
-            # print(resp)
 
         return fhir_risk_assessments, 200
