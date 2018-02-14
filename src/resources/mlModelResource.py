@@ -242,10 +242,8 @@ class MLModelPredicitionResource(Resource):
         # csv_url = 'http://data_pre:5000/aggregation/5a7c3dce2f3b210016d2af87?output_type=csv&aggregation_type=latest'
         data_url = {'dataUrl': csv_url}
         docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
-
         predictions = requests.get(docker_api_call, params=data_url).json()
-        print('write to fhir = ', file=sys.stderr)
-        print(args['writeToFhir'], file=sys.stderr)
+
         if args['writeToFhir'] is not False:
             return self.predict_fhir_request(predictions, model_id)
 

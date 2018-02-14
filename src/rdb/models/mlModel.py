@@ -39,7 +39,7 @@ class MLModel(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-def create(name, desc, env_id, feature_set_id, cond_refcode=None, cond_name=None, create_example_model=False, raise_abort=True):
+def create(name, desc, env_id, feature_set_id, condition_refcode=None, condition_name=None, create_example_model=False, raise_abort=True):
     e = Environment.get(env_id, raise_abort=raise_abort)
 
     m = MLModel()
@@ -53,10 +53,10 @@ def create(name, desc, env_id, feature_set_id, cond_refcode=None, cond_name=None
     m.description = desc
     m.creator_id = g.user.id
 
-    if cond_refcode:
+    if condition_refcode:
         m.condition_refcode = cond_refcode
 
-    if cond_name:
+    if condition_name:
         m.condition_name = cond_name
 
     params = None
