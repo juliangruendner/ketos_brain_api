@@ -5,7 +5,7 @@ fhir__base_risk_assessment = {
     },
     "date":"2009-01-18T00:00:00+00:00",
     "condition":{
-        "reference":"Measurement/700000001"
+        "reference":"Measurement/700000008"
     },
     "method": {
         "coding": [

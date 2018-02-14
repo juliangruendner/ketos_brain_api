@@ -2,6 +2,7 @@ from flask import send_from_directory
 from flask_restful import reqparse, abort, fields, marshal_with, marshal
 from flask_restful_swagger_2 import swagger, Resource
 import rdb.models.mlModel as MLModel
+import rdb.models.predictionOutcome as PredictionOutcome
 from rdb.models.id import ID, id_fields
 from resources.userResource import auth, user_fields
 from resources.environmentResource import environment_fields
@@ -18,6 +19,8 @@ ml_model_fields = {
     'id': fields.Integer,
     'environment_id': fields.Integer,
     'ml_model_name': fields.String,
+    'condition_refcode': fields.String,
+    'condition_name': fields.String,
     'name': fields.String,
     'description': fields.String,
     'creator': fields.Nested(user_fields),
@@ -43,6 +46,8 @@ class MLModelListResource(Resource):
         self.parser.add_argument('name', type=str, required=False, help='No model name provided', location='json')
         self.parser.add_argument('description', type=str, required=False, location='json')
         self.parser.add_argument('feature_set_id', type=int, required=False, location='json')
+        self.parser.add_argument('condition_refcode', type=str, required=False, location='json')
+        self.parser.add_argument('condition_name', type=str, required=False, location='json')
         self.parser.add_argument('create_example_model', type=inputs.boolean, default=True, required=False, location='args')
 
     def abort_if_environment_doesnt_exist(self, env_id):
@@ -59,7 +64,7 @@ class MLModelListResource(Resource):
         args = self.parser.parse_args()
 
         m = MLModel.create(name=args['name'], desc=args['description'], env_id=args['environment_id'], create_example_model=args['create_example_model'],
-                           feature_set_id=args['feature_set_id'])
+                           feature_set_id=args['feature_set_id'], condition_refcode=args['condition_refcode'], condition_name=args['condition_name'])
 
         return m, 201
 
@@ -71,6 +76,8 @@ class MLModelResource(Resource):
         self.parser.add_argument('name', type=str, required=False, location='json')
         self.parser.add_argument('description', type=str, location='json')
         self.parser.add_argument('feature_set_id', type=int, required=False, location='json')
+        self.parser.add_argument('condition_refcode', type=str, required=False, location='json')
+        self.parser.add_argument('condition_name', type=str, required=False, location='json')
 
     def abort_if_environment_doesnt_exist(self, env_id):
         abort(404, message="environment {} doesn't exist".format(env_id))
@@ -85,7 +92,8 @@ class MLModelResource(Resource):
     def put(self, model_id):
         args = self.parser.parse_args()
 
-        m = MLModel.update(model_id=model_id, name=args['name'], desc=args['description'], feature_set_id=args['feature_set_id'])
+        m = MLModel.update(model_id=model_id, name=args['name'], desc=args['description'], feature_set_id=args['feature_set_id'],
+                           condition_refcode=args['condition_refcode'], condition_name=args['condition_name'])
 
         return m, 200
 
@@ -239,14 +247,19 @@ class MLModelPredicitionResource(Resource):
         print('write to fhir = ', file=sys.stderr)
         print(args['writeToFhir'], file=sys.stderr)
         if args['writeToFhir'] is not False:
-            return self.predict_fhir_request(predictions)
+            return self.predict_fhir_request(predictions, model_id)
 
         return predictions, 200
 
-    def predict_fhir_request(self, predictions):
+    def predict_fhir_request(self, predictions, model_id):
+        ml_model = MLModel.get(model_id)
         risk_ass = fhir_ra.RiskAssessment(fhir_ra_base.fhir__base_risk_assessment)
-        cond_ref = 'Measurement/700000002'
+        cond_ref = ml_model.condition_refcode
         risk_ass.condition = {"reference": cond_ref}
+        model_outcomes = PredictionOutcome.get_all_for_model(model_id)
+        outcomes = {}
+        for outcome in model_outcomes:
+            outcomes[outcome.outcome_value] = outcome.outcome_code
 
         patient_prediction = fhir_ra_base.fhir_base_patient_prediction
         risk_ass.prediction = [patient_prediction]
@@ -256,10 +269,10 @@ class MLModelPredicitionResource(Resource):
         for prediction in predictions:
             risk_ass.subject = {"reference": "Patient/" + prediction['patientId']}
             # temporary mapping of output string to code with "_" - needs to be changed to proper concept
-            patient_prediction['outcome']['coding'][0]['code'] = str(prediction['prediction']).replace(' ', '_')
+            patient_prediction['outcome']['coding'][0]['code'] = outcomes[prediction['prediction']]
             risk_ass.prediction = [patient_prediction]
             fhir_risk_assessments.append(risk_ass.as_json())
-            # resp = requests.post('http://gruendner.de:8080/gtfhir/base/RiskAssessment', json=risk_ass.as_json())
+            resp = requests.post('http://gruendner.de:8080/gtfhir/base/RiskAssessment', json=risk_ass.as_json())
             # print(resp)
 
         return fhir_risk_assessments, 200

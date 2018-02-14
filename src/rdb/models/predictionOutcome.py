@@ -29,6 +29,7 @@ class PredictionOutcome(db.Model):
 
 def create(model_id, outcome_code, outcome_value, outcome_codesystem='KETOS'):
     p_o = PredictionOutcome()
+    p_o.model_id = model_id
     p_o.outcome_code = outcome_code
     p_o.outcome_value = outcome_value
     p_o.outcome_codesystem = outcome_codesystem
