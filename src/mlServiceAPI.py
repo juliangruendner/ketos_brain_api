@@ -12,6 +12,7 @@ from resources.resourceConfigResource import ResourceConfigList, ResourceConfig
 from resources.annotationResource import AnnotationTaskListResource, AnnotationTaskResource, UserAnnotationTaskListResource, AnnotationTaskEntryListResource, AnnotationTaskResultListResource
 from resources.annotationResource import AnnotationTaskScaleEntryListResource, AnnotationTaskAnnotatorListResource, AnnotationResultListResource, AnnotatorResultListResource
 from resources.predictionOutcomeResource import ModelPredictionOutcomeListResource, PredictionOutcomeListResource, PredictionOutcomeResource
+from resources.atlasCohortResource import AtlasCohortResource
 from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images, create_default_features
 from flask_cors import CORS
 import json
@@ -68,6 +69,7 @@ api.add_resource(AnnotationTaskAnnotatorListResource, '/annotation_tasks/<int:ta
 api.add_resource(AnnotationResultListResource, '/annotation_tasks/results', endpoint='annotation_tasks_results')
 api.add_resource(AnnotatorResultListResource, '/annotators/<int:annotator_id>/results', endpoint='results_for_annotator')
 api.add_resource(AnnotationTaskResultListResource, '/annotation_tasks/<int:task_id>/results', endpoint='results_for_annotation_task')
+api.add_resource(AtlasCohortResource, '/atlas/cohorts/<int:cohort_id>/patients', endpoint='patients_for_atlas_cohort')
 
 api.add_resource(ModelPredictionOutcomeListResource, '/models/<int:model_id>/outcomes', endpoint='prediction_outcomes')
 api.add_resource(PredictionOutcomeListResource, '/models/prediction/outcomes', endpoint='model_prediction_outcome')
