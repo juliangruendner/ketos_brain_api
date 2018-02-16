@@ -2293,6 +2293,37 @@
 				"description": ""
 			},
 			"response": []
+		},
+		{
+			"name": "http://localhost:5000/atlas/cohorts/1/patients?download=false",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:5000/atlas/cohorts/1/patients?download=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"atlas",
+						"cohorts",
+						"1",
+						"patients"
+					],
+					"query": [
+						{
+							"key": "download",
+							"value": "false",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
 		}
 	]
 }
