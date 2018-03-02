@@ -2,6 +2,7 @@ import psycopg2
 import config
 
 
+connection = None
 try:
     connection = psycopg2.connect(host=config.OMOP_ON_FHIR_HOST,
                                   database=config.OMOP_ON_FHIR_POSTGRES_DB,
@@ -13,6 +14,9 @@ except psycopg2.OperationalError:
 
 
 def get_patient_ids_for_atlas_cohort(cohort_id):
+    if not connection:
+        return list()
+
     cursor = connection.cursor()
     statement = 'SELECT subject_id FROM ohdsi.cohort WHERE cohort_definition_id = %s ORDER BY subject_id ASC'
     cursor.execute(statement, (cohort_id,))
