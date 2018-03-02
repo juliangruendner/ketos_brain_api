@@ -118,3 +118,11 @@ class AnnotationTaskResultListResource(Resource):
 
     def get(self, task_id):
         return handle_request(request)
+
+
+class EntriesForAnnotatorResource(Resource):
+    def __init__(self):
+        super(EntriesForAnnotatorResource, self).__init__()
+
+    def get(self, token):
+        return handle_request(request)
