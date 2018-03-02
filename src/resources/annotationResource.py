@@ -4,6 +4,7 @@ from resources.adminAccess import AdminAccess
 from flask import request
 import requests
 import config
+from flask import g
 
 
 def get_anno_api_url(req):
@@ -32,6 +33,8 @@ class AnnotationTaskListResource(Resource):
 
     @auth.login_required
     def post(self):
+        json_data = request.get_json()
+        json_data["creator_id"] = g.user.id
         return handle_request(request)
 
 
