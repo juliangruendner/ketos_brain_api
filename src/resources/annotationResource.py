@@ -126,3 +126,11 @@ class EntriesForAnnotatorResource(Resource):
 
     def get(self, token):
         return handle_request(request)
+
+
+class AnnotatorResource(Resource):
+    def __init__(self):
+        super(AnnotatorResource, self).__init__()
+
+    def get(self, token):
+        return handle_request(request)
