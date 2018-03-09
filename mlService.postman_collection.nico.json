@@ -443,9 +443,7 @@
 				"header": [],
 				"body": {
 					"mode": "file",
-					"file": {
-						"src": ""
-					}
+					"file": {}
 				},
 				"url": {
 					"raw": "http://localhost:5000/models/load",
@@ -494,9 +492,7 @@
 				"header": [],
 				"body": {
 					"mode": "file",
-					"file": {
-						"src": ""
-					}
+					"file": {}
 				},
 				"url": {
 					"raw": "http://localhost:5000/models/load",
@@ -545,9 +541,7 @@
 				"header": [],
 				"body": {
 					"mode": "file",
-					"file": {
-						"src": ""
-					}
+					"file": {}
 				},
 				"url": {
 					"raw": "http://localhost:5000/models/import/suitable-feature-sets",
@@ -1675,7 +1669,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"crawler_job_id\":\"5a7b5fd779448a00129bfb1b\",\n  \"creator_id\":1,\n  \"name\": \"Test\",\n  \"anno_type\": 1\n}"
+					"raw": "{\n  \"crawler_job_id\":\"5a7b5fd779448a00129bfb1b\",\n  \"name\": \"Test\",\n  \"anno_type\": 1\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/annotation_tasks?number_of_annotators=5",
@@ -1695,7 +1689,7 @@
 						}
 					]
 				},
-				"description": ""
+				"description": null
 			},
 			"response": []
 		},
@@ -2319,6 +2313,148 @@
 							"value": "false",
 							"equals": true
 						}
+					]
+				},
+				"description": null
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/annotators/1d2bb8496a2f4d09b2eaf2c40a30906c/entires",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "saveHelperData",
+							"type": "any"
+						},
+						{
+							"key": "showPassword",
+							"value": false,
+							"type": "boolean"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:5000/annotators/436b85c97ce64ebaa4592be007407f8e",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"annotators",
+						"436b85c97ce64ebaa4592be007407f8e"
+					]
+				},
+				"description": null
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/annotation_tasks/1/scale_entries/1",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "saveHelperData",
+							"type": "any"
+						},
+						{
+							"key": "showPassword",
+							"value": false,
+							"type": "boolean"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:5000/annotation_tasks/1/scale_entries/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"annotation_tasks",
+						"1",
+						"scale_entries",
+						"1"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/annotation_tasks/1/scale_entries/1",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "saveHelperData",
+							"type": "any"
+						},
+						{
+							"key": "showPassword",
+							"value": false,
+							"type": "boolean"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:5000/annotation_tasks/1/scale_entries/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"annotation_tasks",
+						"1",
+						"scale_entries",
+						"1"
 					]
 				},
 				"description": ""
