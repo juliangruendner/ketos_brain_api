@@ -134,3 +134,17 @@ class AnnotatorResource(Resource):
 
     def get(self, token):
         return handle_request(request)
+
+
+class AnnotationTaskScaleEntry(Resource):
+    def __init__(self):
+        super(AnnotationTaskScaleEntry, self).__init__()
+
+    def get(self, task_id, scale_entry_id):
+        return handle_request(request)
+
+    def put(self, task_id, scale_entry_id):
+        return handle_request(request)
+
+    def delete(self, task_id, scale_entry_id):
+        return handle_request(request)

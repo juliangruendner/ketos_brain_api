@@ -10,7 +10,7 @@ from resources.mlModelResource import MLModelExportResource, MLModelImportResour
 from resources.dataResource import DataListResource, DataResource
 from resources.resourceConfigResource import ResourceConfigList, ResourceConfig
 from resources.annotationResource import AnnotationTaskListResource, AnnotationTaskResource, UserAnnotationTaskListResource, AnnotationTaskEntryListResource, AnnotationTaskResultListResource, AnnotatorResource
-from resources.annotationResource import AnnotationTaskScaleEntryListResource, AnnotationTaskAnnotatorListResource, AnnotationResultListResource, AnnotatorResultListResource, EntriesForAnnotatorResource
+from resources.annotationResource import AnnotationTaskScaleEntryListResource, AnnotationTaskAnnotatorListResource, AnnotationResultListResource, AnnotatorResultListResource, EntriesForAnnotatorResource, AnnotationTaskScaleEntry
 from resources.predictionOutcomeResource import ModelPredictionOutcomeListResource, PredictionOutcomeListResource, PredictionOutcomeResource
 from resources.atlasCohortResource import AtlasCohortResource
 from rdb.rdb import connect_to_db, create_all, create_admin_user, create_default_images, create_default_features
@@ -71,6 +71,7 @@ api.add_resource(AnnotatorResultListResource, '/annotators/<int:annotator_id>/re
 api.add_resource(AnnotationTaskResultListResource, '/annotation_tasks/<int:task_id>/results', endpoint='results_for_annotation_task')
 api.add_resource(EntriesForAnnotatorResource, '/annotators/<string:token>/entries', endpoint='entries_for_annotators')
 api.add_resource(AnnotatorResource, '/annotators/<string:token>', endpoint='annotator')
+api.add_resource(AnnotationTaskScaleEntry, '/annotation_tasks/<int:task_id>/scale_entries/<int:scale_entry_id>', endpoint='scale_entry')
 api.add_resource(AtlasCohortResource, '/atlas/cohorts/<int:cohort_id>/patients', endpoint='patients_for_atlas_cohort')
 
 api.add_resource(ModelPredictionOutcomeListResource, '/models/<int:model_id>/outcomes', endpoint='prediction_outcomes')
