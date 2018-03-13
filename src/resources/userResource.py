@@ -43,12 +43,12 @@ class UserListResource(Resource):
     @marshal_with(user_fields)
     @AdminAccess()
     @swagger.doc({
-        "summary": "Get all registered users",
+        "summary": "Returns all registered users",
         "tags": ["users"],
         "produces": [
             "application/json"
         ],
-        "description": 'Get all the registered users for the current Ketos instance',
+        "description": 'Returns all the registered users for the current Ketos instance',
         "responses": {
             "200": {
                 "description": "Returns the list of registered users"
@@ -83,27 +83,25 @@ class UserListResource(Resource):
         return u, 201
 
 
-user_put_parser = reqparse.RequestParser()
-user_put_parser.add_argument('first_name', type=str, location='json')
-user_put_parser.add_argument('last_name', type=str, location='json')
-user_put_parser.add_argument('username', type=str, location='json')
-user_put_parser.add_argument('email', type=str, location='json')
-user_put_parser.add_argument('password', type=str, location='json')
-
-
 class UserResource(Resource):
     def __init__(self):
         super(UserResource, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('first_name', type=str, location='json')
+        self.parser.add_argument('last_name', type=str, location='json')
+        self.parser.add_argument('username', type=str, location='json')
+        self.parser.add_argument('email', type=str, location='json')
+        self.parser.add_argument('password', type=str, location='json')
 
     @auth.login_required
     @marshal_with(user_fields)
     @swagger.doc({
-        "summary": "Gets a specific user",
+        "summary": "Returns a specific user",
         "tags": ["users"],
         "produces": [
             "application/json"
         ],
-        "description": 'Get the user for the given ID',
+        "description": 'Returns the user for the given ID',
         "responses": {
             "200": {
                 "description": "Returns the user with the given ID"
@@ -136,7 +134,7 @@ class UserResource(Resource):
         "description": 'Delete the user for the given ID',
         "responses": {
             "200": {
-                "description": "Success: Returns the user the given ID"
+                "description": "Success: Returns the given ID"
             },
             "404": {
                 "description": "Not found error when user doesn't exist"
@@ -210,7 +208,7 @@ class UserResource(Resource):
         ],
     })
     def put(self, user_id):
-        args = user_put_parser.parse_args()
+        args = self.parser.parse_args()
 
         u = User.update(user_id=user_id, username=args['username'], email=args['email'], password=args['password'], first_name=args['first_name'], last_name=args['last_name'])
 
