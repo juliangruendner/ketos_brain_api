@@ -59,6 +59,28 @@ class UserAnnotationTaskListResource(Resource):
     def __init__(self):
         super(UserAnnotationTaskListResource, self).__init__()
 
+    @swagger.doc({
+        "summary": "Get all annotation tasks for user",
+        "tags": ["annotation tasks"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Get all annotation tasks for user',
+        "parameters": [
+            {
+                "name": "user_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the user",
+                "required": True
+            }
+        ],
+        "responses": {
+            "200": {
+                "description": "annotation tasks"
+            }
+        }
+    })
     def get(self, user_id):
         return handle_request(request)
 

@@ -22,16 +22,18 @@ logging.config.dictConfig(json.load(open("logging_config.json", "r")))
 
 
 app = Flask(__name__)
+CORS(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-api = Api(app, add_api_spec_resource=True, api_version='0.0', api_spec_url='/api/swagger')  # Wrap the Api and add /api/swagger endpoint
+
+api = Api(app,
+          add_api_spec_resource=True, api_version='0.0', api_spec_url='/api/swagger', schemes=["http"], #, "https", {"securitySchemes": {"basicAuth": {"type": "http"}}}],
+          security=[{"basicAuth": []}], security_definitions={"basicAuth": {"type": "basic"}})  # Wrap the Api and add /api/swagger endpoint
 
 connect_to_db(app)
 create_all()
 create_admin_user()
 create_default_images()
 create_default_features()
-
-CORS(app)
 
 api.add_resource(UserListResource, '/users', endpoint='users')
 api.add_resource(UserLoginResource, '/users/login', endpoint='user_login')

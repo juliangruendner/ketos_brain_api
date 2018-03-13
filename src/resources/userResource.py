@@ -40,6 +40,19 @@ class UserListResource(Resource):
     @auth.login_required
     @marshal_with(user_fields)
     @AdminAccess()
+    @swagger.doc({
+        "summary": "Get all registered users",
+        "tags": ["users"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Get all the registered users for the current Ketos instance',
+        "responses": {
+            "200": {
+                "description": "users"
+            }
+        }
+    })
     def get(self):
         return User.get_all(), 200
 
