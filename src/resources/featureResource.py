@@ -225,10 +225,10 @@ class UserFeatureListResource(Resource):
         },
         "parameters": [
             {
-                "name": "feature_id",
+                "name": "user_id",
                 "in": "path",
                 "type": "integer",
-                "description": "The ID of the feature",
+                "description": "The ID of the user",
                 "required": True
             }
         ],

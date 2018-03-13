@@ -217,10 +217,10 @@ class UserFeatureSetListResource(Resource):
         },
         "parameters": [
             {
-                "name": "feature_set_id",
+                "name": "user_id",
                 "in": "path",
                 "type": "integer",
-                "description": "The ID of the feature set",
+                "description": "The ID of the user",
                 "required": True
             }
         ],
