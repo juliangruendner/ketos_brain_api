@@ -54,15 +54,14 @@ def create(name, desc, env_id, feature_set_id, condition_refcode=None, condition
     m.creator_id = g.user.id
 
     if condition_refcode:
-        m.condition_refcode = cond_refcode
+        m.condition_refcode = condition_refcode
 
     if condition_name:
-        m.condition_name = cond_name
+        m.condition_name = condition_name
 
     params = None
     if create_example_model:
         params = {'createExampleModel': create_example_model}
-    print(create_example_model)
     resp = requests.post('http://' + e.container_name + ':5000/models', params=params).json()
     m.ml_model_name = str(resp['modelName'])
 

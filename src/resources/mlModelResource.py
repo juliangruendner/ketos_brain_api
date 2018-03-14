@@ -14,7 +14,8 @@ from flask_restplus import inputs
 import werkzeug
 import fhirclient.models.riskassessment as fhir_ra
 import rdb.fhir_models.riskAssessment as fhir_ra_base
-import sys
+
+
 ml_model_fields = {
     'id': fields.Integer,
     'environment_id': fields.Integer,
@@ -50,16 +51,78 @@ class MLModelListResource(Resource):
         self.parser.add_argument('condition_name', type=str, required=False, location='json')
         self.parser.add_argument('create_example_model', type=inputs.boolean, default=True, required=False, location='args')
 
-    def abort_if_environment_doesnt_exist(self, env_id):
-        abort(404, message="environment {} doesn't exist".format(env_id))
-
     @auth.login_required
     @marshal_with(ml_model_fields)
+    @swagger.doc({
+        "summary": "Returns all existing ML models",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Returns all existing machine learning models',
+        "responses": {
+            "200": {
+                "description": "Returns the list of ML models"
+            }
+        }
+    })
     def get(self):
         return MLModel.get_all(), 200
 
     @auth.login_required
     @marshal_with(ml_model_fields)
+    @swagger.doc({
+        "summary": "Create a new ML model",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Create a new machine learning model',
+        "parameters": [
+            {
+                "name": "create_example_model",
+                "in": "query",
+                "type": "boolean",
+                "description": "Flag whether to create an example model or not",
+                "required": False
+            },
+            {
+                "name": "ml_model",
+                "in": "body",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "environment_id": {
+                            "type": "integer"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "feature_set_id": {
+                            "type": "integer"
+                        },
+                        "condition_refcode": {
+                            "type": "string"
+                        },
+                        "condition_name": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        ],
+        "responses": {
+            "200": {
+                "description": "Returns newly created ML model"
+            },
+            "404": {
+                "description": "Not found error when environment or feature set doesn't exist"
+            }
+        }
+    })
     def post(self):
         args = self.parser.parse_args()
 
@@ -79,16 +142,87 @@ class MLModelResource(Resource):
         self.parser.add_argument('condition_refcode', type=str, required=False, location='json')
         self.parser.add_argument('condition_name', type=str, required=False, location='json')
 
-    def abort_if_environment_doesnt_exist(self, env_id):
-        abort(404, message="environment {} doesn't exist".format(env_id))
-
     @auth.login_required
     @marshal_with(ml_model_fields)
+    @swagger.doc({
+        "summary": "Returns a specific ML model",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Returns the machine learning model for the given ID',
+        "responses": {
+            "200": {
+                "description": "Returns the ML model with the given ID"
+            },
+            "404": {
+                "description": "Not found error when ML model doesn't exist"
+            }
+        },
+        "parameters": [
+            {
+                "name": "model_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the ML model",
+                "required": True
+            }
+        ],
+    })
     def get(self, model_id):
         return MLModel.get(model_id), 200
 
     @auth.login_required
     @marshal_with(ml_model_fields)
+    @swagger.doc({
+        "summary": "Update a ML model",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Update a machine learning model',
+        "responses": {
+            "200": {
+                "description": "Success: Newly updated ML model is returned"
+            },
+            "404": {
+                "description": "Not found error when ML model doesn't exist"
+            }
+        },
+        "parameters": [
+            {
+                "name": "model_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the ML model",
+                "required": True
+            },
+            {
+                "name": "ml_model",
+                "in": "body",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "feature_set_id": {
+                            "type": "integer"
+                        },
+                        "condition_refcode": {
+                            "type": "string"
+                        },
+                        "condition_name": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        ],
+    })
     def put(self, model_id):
         args = self.parser.parse_args()
 
@@ -99,6 +233,31 @@ class MLModelResource(Resource):
 
     @auth.login_required
     @marshal_with(id_fields)
+    @swagger.doc({
+        "summary": "Deletes a specific ML model",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Delete the machine learning model for the given ID',
+        "responses": {
+            "200": {
+                "description": "Success: Returns the given ID"
+            },
+            "404": {
+                "description": "Not found error when ML model doesn't exist"
+            }
+        },
+        "parameters": [
+            {
+                "name": "model_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the ML model",
+                "required": True
+            }
+        ],
+    })
     def delete(self, model_id):
         id = ID()
         id.id = MLModel.delete(model_id)
@@ -112,6 +271,28 @@ class UserMLModelListResource(Resource):
 
     @auth.login_required
     @marshal_with(ml_model_fields)
+    @swagger.doc({
+        "summary": "Returns all ML models for a user",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Returns all the machine learning models for a user',
+        "responses": {
+            "200": {
+                "description": "Returns the list of ML models for a user"
+            }
+        },
+        "parameters": [
+            {
+                "name": "user_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the user",
+                "required": True
+            }
+        ],
+    })
     def get(self, user_id):
         return MLModel.get_all_for_user(user_id), 200
 
@@ -121,6 +302,28 @@ class MLModelExportResource(Resource):
         super(MLModelExportResource, self).__init__()
 
     @auth.login_required
+    @swagger.doc({
+        "summary": "Exports a specific ML model",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Exports a specific machine learning model',
+        "responses": {
+            "200": {
+                "description": "Returns a success flag"
+            }
+        },
+        "parameters": [
+            {
+                "name": "model_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the ML model to export",
+                "required": True
+            }
+        ],
+    })
     def post(self, model_id):
         m = MLModel.get(model_id)
 
@@ -129,10 +332,36 @@ class MLModelExportResource(Resource):
         return {'done': True}, 201
 
     @auth.login_required
+    @swagger.doc({
+        "summary": "Download an exported ML model's data",
+        "tags": ["ml models"],
+        "produces": [
+            "application/octet-stream"
+        ],
+        "description": "Download an exported machine learning model's data",
+        "responses": {
+            "200": {
+                "description": "Returns a zip file with all model data",
+                "schema": {
+                    "type": "file"
+                }
+            }
+        },
+        "parameters": [
+            {
+                "name": "model_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the ML model to export",
+                "required": True
+            }
+        ],
+    })
     def get(self, model_id):
         m = MLModel.get(model_id)
         response = send_from_directory(modelPackagingUtil.get_packaging_path(m), m.ml_model_name + '.zip', as_attachment=True)
         response.headers['content-type'] = 'application/octet-stream'
+        response.status_code = 200
         return response
 
 
@@ -149,6 +378,51 @@ class MLModelImportResource(Resource):
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
     @auth.login_required
+    @swagger.doc({
+        "summary": "Import a ML model",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "consumes": [
+            "multipart/form-data"
+        ],
+        "description": 'Import a machine learning model',
+        "parameters": [
+            {
+                "name": "environment_id",
+                "in": "query",
+                "type": "integer",
+                "description": "ID of environment to import ML model to",
+                "required": False
+            },
+            {
+                "name": "feature_set_id",
+                "in": "query",
+                "type": "integer",
+                "description": "ID of the feature set to assign to the ML model",
+                "required": False
+            },
+            {
+                "name": "file",
+                "in": "formData",
+                "type": "file",
+                "description": "zip file with ML model data",
+                "required": True
+            }
+        ],
+        "responses": {
+            "200": {
+                "description": "Returns newly created ML model"
+            },
+            "400": {
+                "description": "No file or wrong file type submitted"
+            },
+            "404": {
+                "description": "Not found error when environment or feature set doesn't exist"
+            }
+        }
+    })
     def post(self):
         args = self.parser.parse_args()
         f = args['file']

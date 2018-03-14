@@ -28,12 +28,40 @@ class ImageListResource(Resource):
 
     @auth.login_required
     @marshal_with(image_fields)
+    @swagger.doc({
+        "summary": "Returns all images",
+        "tags": ["images"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Returns all images',
+        "responses": {
+            "200": {
+                "description": "Returns the list of images"
+            }
+        }
+    })
     def get(self):
         return Image.get_all(), 200
 
     @auth.login_required
     @marshal_with(image_fields)
     @AdminAccess()
+    @swagger.doc({
+        "summary": "Insert a new image",
+        "tags": ["images"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Insert a new image',
+        'reqparser': {'name': 'image post parser',
+                      'parser': parser},
+        "responses": {
+            "200": {
+                "description": "Returns newly inserted image"
+            }
+        }
+    })
     def post(self):
         args = parser.parse_args()
 
@@ -48,18 +76,86 @@ class ImageResource(Resource):
 
     @auth.login_required
     @marshal_with(image_fields)
+    @swagger.doc({
+        "summary": "Returns a specific image",
+        "tags": ["images"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Returns the image for the given ID',
+        "responses": {
+            "200": {
+                "description": "Returns the image with the given ID"
+            },
+            "404": {
+                "description": "Not found error when image doesn't exist"
+            }
+        },
+        "parameters": [
+            {
+                "name": "image_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the image",
+                "required": True
+            }
+        ],
+    })
     def get(self, image_id):
         return Image.get(image_id), 200
 
     @auth.login_required
     @marshal_with(image_fields)
     @AdminAccess()
+    @swagger.doc({
+        "summary": "Update an image",
+        "tags": ["images"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Update an specific image',
+        "responses": {
+            "200": {
+                "description": "Success: Newly updated image is returned"
+            },
+            "404": {
+                "description": "Not found error when image doesn't exist"
+            }
+        },
+        "parameters": [
+            {
+                "name": "image_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the image",
+                "required": True
+            },
+            {
+                "name": "feature",
+                "in": "body",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        ],
+    })
     def put(self, image_id):
         i = Image.get(image_id)
 
         args = parser.parse_args()
-        i.title = args['title']
-        i.description = args['description']
+
+        if args['title']:
+            i.title = args['title']
+        if args['description']:
+            i.description = args['description']
 
         db.session.commit()
         return i, 200
@@ -67,6 +163,31 @@ class ImageResource(Resource):
     @auth.login_required
     @marshal_with(id_fields)
     @AdminAccess()
+    @swagger.doc({
+        "summary": "Deletes an specific image",
+        "tags": ["images"],
+        "produces": [
+            "application/json"
+        ],
+        "description": 'Delete the image for the given ID',
+        "responses": {
+            "200": {
+                "description": "Success: Returns the given ID"
+            },
+            "404": {
+                "description": "Not found error when image doesn't exist"
+            }
+        },
+        "parameters": [
+            {
+                "name": "image_id",
+                "in": "path",
+                "type": "integer",
+                "description": "The ID of the image",
+                "required": True
+            }
+        ],
+    })
     def delete(self, image_id):
         i = Image.get(image_id)
 

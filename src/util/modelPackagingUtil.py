@@ -40,6 +40,10 @@ def package_model(model):
     if os.path.isdir(packaging_path_tmp):
         rmtree(packaging_path_tmp)
 
+    # create root directory if needed
+    if not os.path.isdir(root_dir):
+        os.makedirs(root_dir, mode=0o777)
+
     # temporarily copy model data to packaging path
     copytree(root_dir, packaging_path_tmp)
 
