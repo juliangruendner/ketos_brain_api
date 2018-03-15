@@ -11,6 +11,7 @@ class ResourceConfigList(Resource):
         super(ResourceConfigList, self).__init__()
     
     @auth.login_required
+    # todo: swagger
     def get(self):
         resp = requests.get(DATA_PRE_RESOURCE_CONFIG_URL).json()
 
@@ -24,12 +25,14 @@ class ResourceConfig(Resource):
         super(ResourceConfig, self).__init__()
 
     @auth.login_required
+    # todo: swagger
     def get(self, resource_name):
         resp = requests.get(DATA_PRE_RESOURCE_CONFIG_URL + "/" + resource_name).json()
 
         return resp, 200
 
     @auth.login_required
+    # todo: swagger
     def post(self, resource_name):
         args = self.parser.parse_args()
         resource_value_relative_path = args["resource_value_relative_path"]
@@ -43,6 +46,7 @@ class ResourceConfig(Resource):
         return resp, 200
     
     @auth.login_required
+    # todo: swagger
     def delete(self, resource_name):
         resp = requests.delete(DATA_PRE_RESOURCE_CONFIG_URL + "/" + resource_name).json()
 

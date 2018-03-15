@@ -28,6 +28,7 @@ class DataListResource(Resource):
         self.parser.add_argument('resource_name', type=str, location='json')
 
     @auth.login_required
+    # todo: swagger
     def get(self):
 
         parser = reqparse.RequestParser()
@@ -45,6 +46,7 @@ class DataListResource(Resource):
         return resp, 200
 
     @auth.login_required
+    # todo: swagger
     def post(self):
         args = self.parser.parse_args()
         patient_ids = args['patient_ids']
@@ -81,6 +83,7 @@ class DataResource(Resource):
         super(DataResource, self).__init__()
 
     @auth.login_required
+    # todo: swagger
     def get(self, datarequest_id):
 
         s_query = "http://" + config.DATA_PREPROCESSING_HOST + "/aggregation/" + str(datarequest_id) + "?output_type=csv&aggregation_type=latest"

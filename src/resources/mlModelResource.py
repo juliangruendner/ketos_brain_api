@@ -449,6 +449,34 @@ class MLModelImportSuitableEnvironmentResource(Resource):
 
     @auth.login_required
     @marshal_with(environment_fields)
+    @swagger.doc({
+        "summary": "Returns suitable environments for ML model import",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "consumes": [
+            "multipart/form-data"
+        ],
+        "description": 'Returns suitable environments for machine learning model import',
+        "parameters": [
+            {
+                "name": "file",
+                "in": "formData",
+                "type": "file",
+                "description": "json file with ML model metadata",
+                "required": True
+            }
+        ],
+        "responses": {
+            "200": {
+                "description": "Returns list with suitable environments"
+            },
+            "400": {
+                "description": "No file or wrong file type submitted"
+            }
+        }
+    })
     def post(self):
         args = self.parser.parse_args()
         f = args['file']
@@ -473,6 +501,34 @@ class MLModelImportSuitableFeatureSetResource(Resource):
 
     @auth.login_required
     @marshal_with(feature_set_fields)
+    @swagger.doc({
+        "summary": "Returns suitable feature sets for ML model import",
+        "tags": ["ml models"],
+        "produces": [
+            "application/json"
+        ],
+        "consumes": [
+            "multipart/form-data"
+        ],
+        "description": 'Returns suitable featuresets for machine learning model import',
+        "parameters": [
+            {
+                "name": "file",
+                "in": "formData",
+                "type": "file",
+                "description": "json file with ML model metadata",
+                "required": True
+            }
+        ],
+        "responses": {
+            "200": {
+                "description": "Returns list with suitable feature sets"
+            },
+            "400": {
+                "description": "No file or wrong file type submitted"
+            }
+        }
+    })
     def post(self):
         args = self.parser.parse_args()
         f = args['file']
@@ -492,6 +548,7 @@ class MLModelPredicitionResource(Resource):
         self.parser.add_argument('dataUrl', type=str, required=True, help='no data url provided', location='args')
 
     @auth.login_required
+    # todo: swagger
     def post(self, model_id):
         parser = reqparse.RequestParser()
         parser.add_argument('patient_ids', type=int, required=True, action='append', help='no patientIds provided', location='json')
@@ -523,6 +580,7 @@ class MLModelPredicitionResource(Resource):
 
         return predictions, 200
 
+    # todo: swagger
     def predict_fhir_request(self, predictions, model_id):
         ml_model = MLModel.get(model_id)
         risk_ass = fhir_ra.RiskAssessment(fhir_ra_base.fhir__base_risk_assessment)

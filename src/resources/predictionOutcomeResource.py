@@ -24,11 +24,13 @@ class PredictionOutcomeListResource(Resource):
 
     @auth.login_required
     @marshal_with(pred_outcome_fields)
+    # todo: swagger
     def get(self):
         return PredictionOutcome.get_all(), 200
 
     @auth.login_required
     @marshal_with(pred_outcome_fields)
+    # todo: swagger
     def post(self):
         args = self.parser.parse_args()
 
@@ -51,11 +53,13 @@ class PredictionOutcomeResource(Resource):
 
     @auth.login_required
     @marshal_with(pred_outcome_fields)
+    # todo: swagger
     def get(self, pred_outcome_id):
         return PredictionOutcome.get(pred_outcome_id), 200
 
     @auth.login_required
     @marshal_with(pred_outcome_fields)
+    # todo: swagger
     def put(self, pred_outcome_id):
         args = self.parser.parse_args()
         p_o = PredictionOutcome.update(pred_outcome_id=pred_outcome_id, outcome_codesystem=args['outcome_codesystem'],
@@ -64,6 +68,7 @@ class PredictionOutcomeResource(Resource):
 
     @auth.login_required
     @marshal_with(id_fields)
+    # todo: swagger
     def delete(self, pred_outcome_id):
         id = ID()
         id.id = PredictionOutcome.delete(pred_outcome_id)
@@ -77,5 +82,6 @@ class ModelPredictionOutcomeListResource(Resource):
 
     @auth.login_required
     @marshal_with(pred_outcome_fields)
+    # todo: swagger
     def get(self, model_id):
         return PredictionOutcome.get_all_for_model(model_id), 200
