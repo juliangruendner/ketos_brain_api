@@ -8,7 +8,7 @@ from resources.featureSetResource import FeatureSetListResource, FeatureSetResou
 from resources.mlModelResource import MLModelListResource, MLModelResource, UserMLModelListResource, MLModelPredicitionResource
 from resources.mlModelResource import MLModelExportResource, MLModelImportResource, MLModelImportSuitableEnvironmentResource, MLModelImportSuitableFeatureSetResource
 from resources.dataResource import DataListResource, DataResource
-from resources.resourceConfigResource import ResourceConfigList, ResourceConfig
+from resources.resourceConfigResource import ResourceConfig
 from resources.annotationResource import AnnotationTaskListResource, AnnotationTaskResource, UserAnnotationTaskListResource, AnnotationTaskEntryListResource, AnnotationTaskResultListResource, AnnotatorResource
 from resources.annotationResource import AnnotationTaskScaleEntryListResource, AnnotationTaskAnnotatorListResource, AnnotationResultListResource, AnnotatorResultListResource, EntriesForAnnotatorResource, AnnotationTaskScaleEntry
 from resources.predictionOutcomeResource import ModelPredictionOutcomeListResource, PredictionOutcomeListResource, PredictionOutcomeResource
@@ -60,8 +60,7 @@ api.add_resource(FeatureResource, '/features/<int:feature_id>', endpoint='featur
 api.add_resource(FeatureSetListResource, '/featuresets', endpoint='feature_sets')
 api.add_resource(FeatureSetResource, '/featuresets/<int:feature_set_id>', endpoint='feature_set')
 api.add_resource(FeatureSetFeatureListResource, '/featuresets/<int:feature_set_id>/features', endpoint='feature_set_features')
-api.add_resource(ResourceConfigList, '/resources_config', endpoint='resources_config_list')
-api.add_resource(ResourceConfig, '/resources_config/<resource_name>', endpoint='resources_config')
+api.add_resource(ResourceConfig, '/resources_config', endpoint='resources_config')
 api.add_resource(AnnotationTaskListResource, '/annotation_tasks', endpoint='annotation_tasks')
 api.add_resource(AnnotationTaskResource, '/annotation_tasks/<int:task_id>', endpoint='annotation_task')
 api.add_resource(UserAnnotationTaskListResource, '/users/<int:user_id>/annotation_tasks', endpoint='annotation_tasks_for_user')
