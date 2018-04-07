@@ -516,6 +516,9 @@ class AnnotationTaskResultListResource(Resource):
     def get(self, task_id):
         return handle_request(request)
 
+    def post(self, task_id):
+        return handle_request(request)
+
 
 class EntriesForAnnotatorResource(Resource):
     def __init__(self):
