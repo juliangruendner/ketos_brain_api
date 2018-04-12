@@ -158,7 +158,8 @@ def load_model(file, environment_id=None, feature_set_id=None, raise_abort=True)
         db.session.commit()
 
     # remove temporarily created directory and files
-    rmtree(env_created.get_data_directory() + '/' + model_created.ml_model_name)
+    if os.path.isdir(env_created.get_data_directory() + '/' + model_created.ml_model_name):
+        rmtree(env_created.get_data_directory() + '/' + model_created.ml_model_name)
     os.makedirs(env_created.get_data_directory() + '/' + model_created.ml_model_name, mode=0o777)
     for filename in os.listdir(tmp_path):
         move(tmp_path + '/' + filename, env_created.get_data_directory() + '/' + model_created.ml_model_name)
