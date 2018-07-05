@@ -61,8 +61,8 @@ class Environment(db.Model):
         self.status = Environment.Status.running.value
 
     def set_jupyter_url(self):
-        # TODO: read host address from os
-        host = 'localhost'
+        # TODO: read host address from os - for now use config
+        host = config.KETOS_HOST
         self.jupyter_url = host + ':' + self.jupyter_port + '/?token=' + self.jupyter_token
 
     def hide_jupyter_data(self):
