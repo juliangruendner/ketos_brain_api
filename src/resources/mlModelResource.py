@@ -14,6 +14,7 @@ from flask_restplus import inputs
 import werkzeug
 import fhirclient.models.riskassessment as fhir_ra
 import rdb.fhir_models.riskAssessment as fhir_ra_base
+import sys
 
 
 ml_model_fields = {
@@ -547,32 +548,38 @@ class MLModelPredicitionResource(Resource):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('dataUrl', type=str, required=True, help='no data url provided', location='args')
 
-    @auth.login_required
-    # todo: swagger
+    # @auth.login_required
+    # TODO: comment in @auth.login_required again
     def post(self, model_id):
         parser = reqparse.RequestParser()
         parser.add_argument('patient_ids', type=int, required=True, action='append', help='no patientIds provided', location='json')
         parser.add_argument('writeToFhir', type=inputs.boolean, required=False, location='args')
+        parser.add_argument('ownInputData', type=inputs.boolean, required=False, location='args')
         args = parser.parse_args()
         patient_ids = args['patient_ids']
 
         ml_model = MLModel.get(model_id)
-        features = ml_model.feature_set.features
-        feature_set = []
 
-        for feature in features:
-            cur_feature = marshal(feature, feature_fields)
-            feature_set.append(cur_feature)
+        if args['ownInputData'] is False:
+            features = ml_model.feature_set.features
+            feature_set = []
 
-        preprocess_body = {'patient': patient_ids, 'feature_set': feature_set}
+            for feature in features:
+                cur_feature = marshal(feature, feature_fields)
+                feature_set.append(cur_feature)
+            preprocess_body = {'patient': patient_ids, 'feature_set': feature_set}
 
-        resp = requests.post('http://' + config.DATA_PREPROCESSING_HOST + '/crawler', json=preprocess_body).json()
-        csv_url = resp['csv_url']
-        csv_url = csv_url.replace("localhost", "data_pre")
+            resp = requests.post('http://' + config.DATA_PREPROCESSING_HOST + '/crawler', json=preprocess_body).json()
+            csv_url = resp['csv_url']
+            csv_url = csv_url.replace("localhost", "data_pre")
 
-        data_url = {'dataUrl': csv_url}
-        docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
-        predictions = requests.get(docker_api_call, params=data_url).json()
+            data_url = {'dataUrl': csv_url}
+            docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
+            predictions = requests.get(docker_api_call, params=data_url).json()
+        else:
+            data_url = {'dataUrl': "http://buhu"}
+            docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
+            predictions = requests.get(docker_api_call, params=data_url).json()
 
         if args['writeToFhir'] is not False:
             return self.predict_fhir_request(predictions, model_id)
