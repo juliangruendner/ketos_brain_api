@@ -548,8 +548,7 @@ class MLModelPredicitionResource(Resource):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('dataUrl', type=str, required=True, help='no data url provided', location='args')
 
-    # @auth.login_required
-    # TODO: comment in @auth.login_required again
+    @auth.login_required
     def post(self, model_id):
         parser = reqparse.RequestParser()
         parser.add_argument('patient_ids', type=int, required=True, action='append', help='no patientIds provided', location='json')
@@ -577,7 +576,7 @@ class MLModelPredicitionResource(Resource):
             docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
             predictions = requests.get(docker_api_call, params=data_url).json()
         else:
-            data_url = {'dataUrl': "http://buhu"}
+            data_url = {'dataUrl': ""}
             docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
             predictions = requests.get(docker_api_call, params=data_url).json()
 
