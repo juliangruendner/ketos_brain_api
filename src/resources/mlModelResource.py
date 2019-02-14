@@ -36,7 +36,7 @@ ml_model_fields = {
 feature_fields = {
     'resource': fields.String,
     'key': fields.String(attribute='parameter_name'),
-    'value': fields.String,
+    'value': fields.String
 }
 
 
@@ -566,6 +566,8 @@ class MLModelPredicitionResource(Resource):
             for feature in features:
                 cur_feature = marshal(feature, feature_fields)
                 feature_set.append(cur_feature)
+            
+            print(patient_ids, file=sys.stderr)
             preprocess_body = {'patient': patient_ids, 'feature_set': feature_set}
 
             resp = requests.post('http://' + config.DATA_PREPROCESSING_HOST + '/crawler', json=preprocess_body).json()
@@ -574,7 +576,9 @@ class MLModelPredicitionResource(Resource):
 
             data_url = {'dataUrl': csv_url}
             docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
+
             predictions = requests.get(docker_api_call, params=data_url).json()
+            res = requests.delete('http://' + config.DATA_PREPROCESSING_HOST + '/crawler/jobs/' + resp['crawler_id'])
         else:
             data_url = {'dataUrl': ""}
             docker_api_call = 'http://' + ml_model.environment.container_name + ':5000/models/' + ml_model.ml_model_name + '/execute'
