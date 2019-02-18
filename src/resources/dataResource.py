@@ -10,6 +10,10 @@ from rdb.models.featureSet import FeatureSet
 import json
 import logging
 logger = logging.getLogger(__name__)
+from resources.adminAccess import AdminAccess
+from resources.adminAccess import is_admin_user
+import rdb.models.dataRequest as DataRequest
+import sys
 
 feature_fields = {
     'resource': fields.String,
@@ -37,15 +41,23 @@ class DataListResource(Resource):
         job_id = args['jobId']
 
         s_query = "http://" + config.DATA_PREPROCESSING_HOST + "/crawler/jobs"
-
-        if job_id:
-            s_query = s_query + "/" + str(job_id)
-            
         resp = requests.get(s_query).json()
 
-        return resp, 200
+        if is_admin_user():
+            return resp, 200
+        
+        user_drs = DataRequest.get_all_for_user(g.user.id)
+        user_drs = [drs[0] for drs in user_drs]
+        filtered_response = []
+
+        for dr in resp:
+            if dr['_id'] in user_drs:
+                filtered_response.append(dr)
+
+        return filtered_response, 200
 
     @auth.login_required
+    @AdminAccess()
     # todo: swagger
     def post(self):
         args = self.parser.parse_args()
@@ -71,9 +83,10 @@ class DataListResource(Resource):
         if (resource_name is not None):
             preprocess_body["resource"] = resource_name
 
-        print(preprocess_body)
-
         resp = requests.post("http://" + config.DATA_PREPROCESSING_HOST + "/crawler/jobs", json = preprocess_body).json()
+
+        DataRequest.create(request_id=resp['id'])
+        dr = DataRequest.add_users(resp['id'], [2])
 
         return resp, 200
 
@@ -88,5 +101,6 @@ class DataResource(Resource):
 
         s_query = "http://" + config.DATA_PREPROCESSING_HOST + "/aggregation/" + str(datarequest_id) + "?output_type=csv&aggregation_type=latest"
         result = requests.get(s_query)
+
         return Response(result, mimetype='text/csv')
 

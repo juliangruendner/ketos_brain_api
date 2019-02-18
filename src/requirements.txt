@@ -3,7 +3,7 @@ Flask-HTTPAuth
 Flask-RESTful
 flask_sqlalchemy
 passlib
-psycopg2
+psycopg2-binary
 docker
 requests
 flask_cors

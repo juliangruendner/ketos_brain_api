@@ -26,6 +26,7 @@ class User(db.Model):
     created_ml_models = db.relationship('MLModel', lazy=True, backref='creator')
     created_features = db.relationship('Feature', lazy=True, backref='creator')
     created_feature_sets = db.relationship('FeatureSet', lazy=True, backref='creator')
+    data_requests = db.relationship('DataRequest', lazy='subquery', secondary='user_data_request')
     # accessible_evironments = db.relationship('Environment', lazy='subquery', secondary='user_environment_access')
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=datetime.datetime.now)
