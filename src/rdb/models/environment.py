@@ -108,7 +108,9 @@ def create(name, desc, image_id, raise_abort=True):
                                             detach=True,
                                             network=config.PROJECT_NAME+"_environment",
                                             ports={"8000/tcp": e.jupyter_port},
-                                            volumes={e.get_data_directory(): {'bind': '/mlenvironment/models', 'mode': 'rw'}})
+                                            volumes={e.get_data_directory(): {'bind': '/mlenvironment/models', 'mode': 'rw'},
+                                                     '/ketos/auth': {'bind': '/mlService_dockerApi/src/auth', 'mode': 'ro'}}
+                                            )
 
     e.container_id = container.id
     e.start_jupyter()
