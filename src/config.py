@@ -3,6 +3,7 @@ import os
 POSTGRES_USER = str(os.getenv('POSTGRES_USER', ''))
 POSTGRES_PASSWORD = str(os.getenv('POSTGRES_PASSWORD', ''))
 POSTGRES_DB = str(os.getenv('POSTGRES_DB', ''))
+POSTGRES_HOST = str(os.getenv('POSTGRES_HOST', ''))
 
 DOCKER_REGISTRY_USERNAME = str(os.getenv('DOCKER_REGISTRY_USERNAME', ''))
 DOCKER_REGISTRY_PASSWORD = str(os.getenv('DOCKER_REGISTRY_PASSWORD', ''))
