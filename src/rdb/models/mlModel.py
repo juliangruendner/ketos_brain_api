@@ -6,6 +6,7 @@ import requests
 import rdb.models.featureSet as FeatureSet
 from flask_restful import abort
 import rdb.models.user as User
+import sys
 
 
 class MLModel(db.Model):
@@ -112,6 +113,9 @@ def update(model_id, name=None, desc=None, condition_refcode=None, condition_nam
     if feature_set_id:
         fs = FeatureSet.get(feature_set_id, raise_abort=raise_abort)
         m.feature_set_id = fs.id
+
+    if feature_set_id == 0:
+        m.feature_set_id = None
 
     db.session.commit()
     return m, 200

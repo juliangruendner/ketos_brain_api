@@ -1,0 +1,3 @@
+FROM python:3
+ADD src /ketos_brain_api
+CMD bash -c "cd ketos_brain_api && chmod +x startup.prod.sh && ./startup.prod.sh"
