@@ -10,6 +10,7 @@ feature_fields = {
     'parameter_name': fields.String,
     'value': fields.String,
     'name': fields.String,
+    'output_value_path': fields.String,
     'description': fields.String,
     'creator': fields.Nested(user_fields),
     'created_at': fields.DateTime,
@@ -22,6 +23,7 @@ feature_post_parser.add_argument('resource', type=str, required=True, help='No r
 feature_post_parser.add_argument('parameter_name', type=str, required=True, help='No parameter name provided', location='json')
 feature_post_parser.add_argument('value', type=str, required=True, help='No value provided', location='json')
 feature_post_parser.add_argument('name', type=str, required=False, location='json')
+feature_post_parser.add_argument('output_value_path', type=str, required=False, location='json')
 feature_post_parser.add_argument('description', type=str, required=False, location='json')
 
 
@@ -66,8 +68,7 @@ class FeatureListResource(Resource):
     })
     def post(self):
         args = feature_post_parser.parse_args()
-
-        f = Feature.create(args['resource'], args['parameter_name'], args['value'], args['name'], args['description'])
+        f = Feature.create(args['resource'], args['parameter_name'], args['value'], args['name'], args['description'], args['output_value_path'])
 
         return f, 201
 
@@ -80,6 +81,7 @@ class FeatureResource(Resource):
         self.parser.add_argument('parameter_name', type=str, required=False, location='json')
         self.parser.add_argument('value', type=str, required=False, location='json')
         self.parser.add_argument('name', type=str, required=False, location='json')
+        self.parser.add_argument('output_value_path', type=str, required=False, location='json')
         self.parser.add_argument('description', type=str, required=False, location='json')
 
     @auth.login_required
@@ -167,7 +169,7 @@ class FeatureResource(Resource):
         args = self.parser.parse_args()
 
         f = Feature.update(feature_id=feature_id, resource=args['resource'], parameter_name=args['parameter_name'], value=args['value'], name=args['name'],
-                           desc=args['description'])
+                           output_value_path=args['output_value_path'], desc=args['description'])
 
         return f, 200
 

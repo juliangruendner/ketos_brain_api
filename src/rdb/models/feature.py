@@ -15,6 +15,7 @@ class Feature(db.Model):
     parameter_name = db.Column(db.Text, nullable=False)
     value = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text)
+    output_value_path = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
@@ -35,13 +36,14 @@ class Feature(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-def create(resource, parameter_name, value, name, desc, creator_id=None):
+def create(resource, parameter_name, value, name, desc, output_value_path=None, creator_id=None):
     f = Feature()
     f.resource = resource
     f.parameter_name = parameter_name
     f.value = value
     f.name = name
     f.description = desc
+    f.output_value_path = output_value_path
 
     if not creator_id:
         f.creator_id = g.user.id
@@ -78,7 +80,7 @@ def get_by_res_par_val(resource, parameter_name, value):
     return Feature.query.filter_by(resource=resource).filter_by(parameter_name=parameter_name).filter_by(value=value).first()
 
 
-def update(feature_id, resource=None, parameter_name=None, value=None, name=None, desc=None, raise_abort=True):
+def update(feature_id, resource=None, parameter_name=None, value=None, name=None, output_value_path=None, desc=None, raise_abort=True):
     f = get(feature_id, raise_abort=raise_abort)
 
     User.check_request_for_logged_in_user(f.creator_id)
@@ -97,6 +99,9 @@ def update(feature_id, resource=None, parameter_name=None, value=None, name=None
 
     if desc:
         f.description = desc
+
+    if output_value_path:
+        f.output_value_path = output_value_path
 
     db.session.commit()
     return f
