@@ -20,6 +20,7 @@ feature_fields = {
     'key': fields.String(attribute='parameter_name'),
     'value': fields.String,
     'name': fields.String,
+    'resource_val_path': fields.String(attribute='output_value_path')
 }
 
 
@@ -76,6 +77,10 @@ class DataListResource(Resource):
 
             for feature in features:
                 cur_feature = marshal(feature, feature_fields)
+
+                if cur_feature['resource_val_path'] is None:
+                    cur_feature.pop('resource_val_path', None)
+
                 feature_set.append(cur_feature)
 
             preprocess_body["feature_set"] = feature_set
