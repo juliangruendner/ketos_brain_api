@@ -102,6 +102,9 @@ def update(feature_id, resource=None, parameter_name=None, value=None, name=None
 
     if output_value_path:
         f.output_value_path = output_value_path
+    
+    if output_value_path is None:
+        f.output_value_path = None
 
     db.session.commit()
     return f
