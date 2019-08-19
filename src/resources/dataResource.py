@@ -88,7 +88,7 @@ class DataListResource(Resource):
         if (resource_name is not None):
             preprocess_body["resource"] = resource_name
 
-        resp = requests.post("http://" + config.DATA_PREPROCESSING_HOST + "/crawler/jobs", json = preprocess_body).json()
+        resp = requests.post("http://" + config.DATA_PREPROCESSING_HOST + "/crawler/jobs", json=preprocess_body).json()
 
         DataRequest.create(request_id=resp['id'])
         dr = DataRequest.add_users(resp['id'], [2])

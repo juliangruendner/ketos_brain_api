@@ -36,7 +36,9 @@ ml_model_fields = {
 feature_fields = {
     'resource': fields.String,
     'key': fields.String(attribute='parameter_name'),
-    'value': fields.String
+    'value': fields.String,
+    'name': fields.String,
+    'resource_val_path': fields.String(attribute='output_value_path')
 }
 
 
@@ -565,9 +567,12 @@ class MLModelPredicitionResource(Resource):
 
             for feature in features:
                 cur_feature = marshal(feature, feature_fields)
+
+                if cur_feature['resource_val_path'] is None:
+                    cur_feature.pop('resource_val_path', None)
+                
                 feature_set.append(cur_feature)
             
-            print(patient_ids, file=sys.stderr)
             preprocess_body = {'patient': patient_ids, 'feature_set': feature_set}
 
             resp = requests.post('http://' + config.DATA_PREPROCESSING_HOST + '/crawler', json=preprocess_body).json()
