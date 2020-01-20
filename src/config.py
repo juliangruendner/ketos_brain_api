@@ -27,4 +27,7 @@ OMOP_ON_FHIR_POSTGRES_PASSWORD = str(os.getenv('OMOP_ON_FHIR_POSTGRES_PASSWORD',
 OMOP_ON_FHIR_POSTGRES_DB = str(os.getenv('OMOP_ON_FHIR_POSTGRES_DB', ''))
 OMOP_ON_FHIR_HOST = str(os.getenv('OMOP_ON_FHIR_HOST', ''))
 
-KETOS_HOST= str(os.getenv('KETOS_HOST', ''))
+KETOS_HOST = str(os.getenv('KETOS_HOST', ''))
+KETOS_DATA_FOLDER = str(os.getenv('KETOS_DATA_FOLDER', '/ketos'))
+
+

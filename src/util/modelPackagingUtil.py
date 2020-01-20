@@ -61,11 +61,24 @@ def package_model(model):
 
         # write environment data to json file
         env = model.environment
-        json.dump(env.as_dict(), metadata, default=alchemyencoder)
+
+        env_print = env.as_dict()
+        env_print['container_id'] = "xxxxxxxxxxxx"
+        env_print['container_name'] = "xxxxxxxxxxxx"
+        env_print['jupyter_token'] = "xxxxxxxxxxxx"
+        env_print['jupyter_port'] = "xxxxxxxxxxxxx"
+        json.dump(env_print, metadata, default=alchemyencoder)
         metadata.write(',')
 
         # write model data to json file
-        json.dump(model.as_dict(), metadata, default=alchemyencoder)
+
+        model_print = model.as_dict()
+
+        model_print['container_id'] = "xxxxxxxxxxxx"
+        model_print['container_name'] = "xxxxxxxxxxxx"
+        model_print['jupyter_token'] = "xxxxxxxxxxxx"
+        model_print['jupyter_port'] = "xxxxxxxxxxxxx"
+        json.dump(model_print, metadata, default=alchemyencoder)
 
         # write feature set data to json file
         feature_set = model.feature_set

@@ -71,7 +71,8 @@ class Environment(db.Model):
         self.jupyter_url = None
 
     def get_data_directory(self):
-        return '/ketos/environments_data/' + self.container_name
+        
+        return config.KETOS_DATA_FOLDER + '/environments_data/' + self.container_name
 
     class Status(Enum):
         running = 'running'
@@ -109,7 +110,7 @@ def create(name, desc, image_id, raise_abort=True):
                                             network=config.PROJECT_NAME+"_environment",
                                             ports={"8000/tcp": e.jupyter_port},
                                             volumes={e.get_data_directory(): {'bind': '/mlenvironment/models', 'mode': 'rw'},
-                                                     '/ketos/auth': {'bind': '/root/src/auth', 'mode': 'ro'}}
+                                                     config.KETOS_DATA_FOLDER+'/auth': {'bind': '/root/src/auth', 'mode': 'ro'}}
                                             )
 
     e.container_id = container.id
